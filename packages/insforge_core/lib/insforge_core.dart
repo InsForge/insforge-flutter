@@ -9,3 +9,4 @@ export 'src/options.dart';
 export 'src/url.dart';
 export 'src/dates.dart';
 export 'src/logging_interceptor.dart';
+export 'src/http_client.dart';
