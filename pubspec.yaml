@@ -10,6 +10,7 @@ workspace:
   - packages/insforge_auth
   - packages/insforge_database
   - packages/insforge_storage
+  - packages/insforge_functions
 
 dev_dependencies:
   melos: ^6.1.0
