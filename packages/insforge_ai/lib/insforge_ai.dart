@@ -8,3 +8,6 @@ export 'src/models/chat_message.dart';
 export 'src/models/usage.dart';
 export 'src/models/chat_completion.dart';
 export 'src/models/chat_chunk.dart';
+export 'src/models/images.dart';
+export 'src/models/embeddings.dart';
+export 'src/models/ai_model.dart';
