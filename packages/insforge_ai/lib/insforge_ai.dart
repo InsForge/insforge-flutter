@@ -11,3 +11,4 @@ export 'src/models/chat_chunk.dart';
 export 'src/models/images.dart';
 export 'src/models/embeddings.dart';
 export 'src/models/ai_model.dart';
+export 'src/ai_client.dart';
