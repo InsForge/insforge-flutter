@@ -111,6 +111,20 @@ class AuthClient {
     return response;
   }
 
+  /// Signs out: best-effort backend logout, then clears in-memory and
+  /// persisted session and emits [AuthChangeEvent.signedOut].
+  Future<void> signOut() async {
+    try {
+      await _http.request<dynamic>('POST', '/api/auth/logout');
+    } catch (_) {
+      // Ignore backend logout failures; local state is cleared regardless.
+    }
+    _currentSession = null;
+    _http.accessToken = null;
+    await _clearPersisted();
+    _stateController.add(const AuthState(AuthChangeEvent.signedOut, null));
+  }
+
   // ---------------------------------------------------------------------------
   // Session application + persistence (shared by all auth flows)
   // ---------------------------------------------------------------------------
