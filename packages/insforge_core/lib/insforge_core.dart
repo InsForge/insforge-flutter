@@ -8,3 +8,4 @@ export 'src/session_storage.dart';
 export 'src/options.dart';
 export 'src/url.dart';
 export 'src/dates.dart';
+export 'src/logging_interceptor.dart';
