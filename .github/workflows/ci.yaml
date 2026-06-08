@@ -21,3 +21,9 @@ jobs:
       - name: Test insforge_core
         working-directory: packages/insforge_core
         run: dart test
+      - name: Test insforge_auth
+        working-directory: packages/insforge_auth
+        run: dart test
+      - name: Test insforge_database
+        working-directory: packages/insforge_database
+        run: dart test
