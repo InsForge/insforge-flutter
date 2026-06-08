@@ -1,5 +1,4 @@
 // packages/insforge_auth/test/auth_client_refresh_test.dart
-import 'package:dio/dio.dart';
 import 'package:http_mock_adapter/http_mock_adapter.dart';
 import 'package:insforge_auth/insforge_auth.dart';
 import 'package:insforge_core/insforge_core.dart';

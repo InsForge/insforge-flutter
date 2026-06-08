@@ -1,5 +1,4 @@
 // packages/insforge_auth/test/auth_client_sign_in_test.dart
-import 'package:dio/dio.dart';
 import 'package:http_mock_adapter/http_mock_adapter.dart';
 import 'package:insforge_auth/insforge_auth.dart';
 import 'package:insforge_core/insforge_core.dart';
@@ -79,8 +78,10 @@ void main() {
 
     expect(
       () => auth.signIn(email: 'a@b.com', password: 'bad'),
-      throwsA(isA<InsforgeHttpException>()
-          .having((e) => e.statusCode, 'statusCode', 401)),
+      throwsA(
+        isA<InsforgeHttpException>()
+            .having((e) => e.statusCode, 'statusCode', 401),
+      ),
     );
   });
 }
