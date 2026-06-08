@@ -30,3 +30,6 @@ jobs:
       - name: Test insforge_storage
         working-directory: packages/insforge_storage
         run: dart test
+      - name: Test insforge_functions
+        working-directory: packages/insforge_functions
+        run: dart test
