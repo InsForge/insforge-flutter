@@ -304,6 +304,52 @@ class AuthClient {
     return response;
   }
 
+  // ---------------------------------------------------------------------------
+  // Profile
+  // ---------------------------------------------------------------------------
+
+  /// Fetches the public profile for [userId].
+  Future<Profile> getProfile(String userId) async {
+    final res = await _http.request<Map<String, dynamic>>(
+      'GET',
+      '/api/auth/profiles/$userId',
+    );
+    return Profile.fromJson(res.data!);
+  }
+
+  /// Updates the current user's profile. Refreshes the in-memory user and
+  /// emits [AuthChangeEvent.userUpdated] when a session is active.
+  Future<Profile> updateProfile(Map<String, dynamic> profile) async {
+    final res = await _http.request<Map<String, dynamic>>(
+      'PATCH',
+      '/api/auth/profiles/current',
+      data: <String, dynamic>{'profile': profile},
+    );
+    final updated = Profile.fromJson(res.data!);
+
+    final session = _currentSession;
+    if (session != null) {
+      final current = session.user;
+      final mergedUser = User(
+        id: current.id,
+        email: current.email,
+        emailVerified: current.emailVerified,
+        providers: current.providers,
+        profile: updated.profile,
+        metadata: current.metadata,
+        createdAt: current.createdAt,
+        updatedAt: current.updatedAt,
+      );
+      final newSession = session.copyWith(user: mergedUser);
+      _currentSession = newSession;
+      await _storage.write(kUserKey, jsonEncode(mergedUser.toJson()));
+      _stateController.add(
+        AuthState(AuthChangeEvent.userUpdated, newSession),
+      );
+    }
+    return updated;
+  }
+
   /// Releases the broadcast stream controller.
   Future<void> dispose() => _stateController.close();
 }
