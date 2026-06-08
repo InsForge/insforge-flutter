@@ -85,6 +85,32 @@ class AuthClient {
     return response;
   }
 
+  /// Registers a new user. When email verification is disabled the response
+  /// carries a session, which is persisted and emitted; otherwise no session
+  /// is established yet.
+  Future<SignUpResponse> signUp({
+    required String email,
+    required String password,
+    String? name,
+  }) async {
+    final res = await _http.request<Map<String, dynamic>>(
+      'POST',
+      '/api/auth/users',
+      data: <String, dynamic>{
+        'email': email,
+        'password': password,
+        if (name != null) 'name': name,
+      },
+      queryParameters: _clientTypeQuery,
+    );
+    final response = SignUpResponse.fromJson(res.data!);
+    final session = response.toSession();
+    if (session != null) {
+      await _applySession(session, AuthChangeEvent.signedIn);
+    }
+    return response;
+  }
+
   // ---------------------------------------------------------------------------
   // Session application + persistence (shared by all auth flows)
   // ---------------------------------------------------------------------------
