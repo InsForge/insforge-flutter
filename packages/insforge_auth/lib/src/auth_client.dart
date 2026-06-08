@@ -160,10 +160,31 @@ class AuthClient {
     return response.accessToken;
   }
 
-  /// Refreshes the access token using the persisted refresh token.
-  /// Implemented in Task 14.
-  Future<AuthResponse> refreshAccessToken() {
-    throw UnimplementedError('refreshAccessToken is implemented in Task 14');
+  /// Refreshes the access token using the persisted refresh token. Persists the
+  /// new tokens and emits [AuthChangeEvent.tokenRefreshed].
+  Future<AuthResponse> refreshAccessToken() async {
+    final refreshToken = await _storage.read(kRefreshTokenKey);
+    if (refreshToken == null) {
+      throw InsforgeAuthException('No refresh token available');
+    }
+    final res = await _http.request<Map<String, dynamic>>(
+      'POST',
+      '/api/auth/refresh',
+      data: <String, dynamic>{'refreshToken': refreshToken},
+      queryParameters: _clientTypeQuery,
+    );
+    final response = AuthResponse.fromJson(res.data!);
+    await _applySession(response.toSession(), AuthChangeEvent.tokenRefreshed);
+    return response;
+  }
+
+  /// Fetches the currently authenticated user from the access token.
+  Future<User> getCurrentUser() async {
+    final res = await _http.request<Map<String, dynamic>>(
+      'GET',
+      '/api/auth/sessions/current',
+    );
+    return User.fromJson(Map<String, dynamic>.from(res.data!['user'] as Map));
   }
 
   /// Releases the broadcast stream controller.
