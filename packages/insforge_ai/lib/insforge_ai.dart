@@ -2,3 +2,4 @@
 library insforge_ai;
 
 export 'src/errors.dart';
+export 'src/models/content_part.dart';
