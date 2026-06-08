@@ -258,6 +258,52 @@ class AuthClient {
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // OAuth (PKCE)
+  // ---------------------------------------------------------------------------
+
+  /// Requests the provider authorization URL for a PKCE flow. The app should
+  /// open the returned URL in a browser, then pass the callback URI to
+  /// [handleOAuthCallback] along with the original [PkceHelper] verifier.
+  Future<String> getOAuthUrl({
+    required OAuthProvider provider,
+    required String redirectUri,
+    required String codeChallenge,
+  }) async {
+    final res = await _http.request<Map<String, dynamic>>(
+      'GET',
+      '/api/auth/oauth/${provider.wireName}',
+      queryParameters: <String, dynamic>{
+        'redirect_uri': redirectUri,
+        'code_challenge': codeChallenge,
+      },
+    );
+    return res.data!['authUrl'] as String;
+  }
+
+  /// Completes a PKCE OAuth flow: extracts `insforge_code` from [callbackUri],
+  /// exchanges it (with [codeVerifier]) for a session, and persists/emits.
+  Future<AuthResponse> handleOAuthCallback(
+    Uri callbackUri,
+    String codeVerifier,
+  ) async {
+    final code = callbackUri.queryParameters['insforge_code'];
+    if (code == null || code.isEmpty) {
+      throw InsforgeAuthException(
+        'OAuth callback is missing the insforge_code parameter',
+      );
+    }
+    final res = await _http.request<Map<String, dynamic>>(
+      'POST',
+      '/api/auth/oauth/exchange',
+      data: <String, dynamic>{'code': code, 'code_verifier': codeVerifier},
+      queryParameters: _clientTypeQuery,
+    );
+    final response = AuthResponse.fromJson(res.data!);
+    await _applySession(response.toSession(), AuthChangeEvent.signedIn);
+    return response;
+  }
+
   /// Releases the broadcast stream controller.
   Future<void> dispose() => _stateController.close();
 }
