@@ -3,3 +3,4 @@
 library insforge_core;
 
 export 'src/errors.dart';
+export 'src/error_response.dart';
