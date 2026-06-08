@@ -27,3 +27,6 @@ jobs:
       - name: Test insforge_database
         working-directory: packages/insforge_database
         run: dart test
+      - name: Test insforge_storage
+        working-directory: packages/insforge_storage
+        run: dart test
