@@ -187,6 +187,77 @@ class AuthClient {
     return User.fromJson(Map<String, dynamic>.from(res.data!['user'] as Map));
   }
 
+  // ---------------------------------------------------------------------------
+  // Email verification
+  // ---------------------------------------------------------------------------
+
+  /// Sends (or resends) a verification email/code to [email].
+  Future<void> sendVerificationEmail(String email) async {
+    await _http.request<dynamic>(
+      'POST',
+      '/api/auth/email/send-verification',
+      data: <String, dynamic>{'email': email},
+    );
+  }
+
+  /// Verifies an email with a 6-digit [otp], establishing a session.
+  Future<AuthResponse> verifyEmail({
+    String? email,
+    required String otp,
+  }) async {
+    final res = await _http.request<Map<String, dynamic>>(
+      'POST',
+      '/api/auth/email/verify',
+      data: <String, dynamic>{
+        if (email != null) 'email': email,
+        'otp': otp,
+      },
+      queryParameters: _clientTypeQuery,
+    );
+    final response = AuthResponse.fromJson(res.data!);
+    await _applySession(response.toSession(), AuthChangeEvent.signedIn);
+    return response;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Password reset
+  // ---------------------------------------------------------------------------
+
+  /// Sends a password-reset email/code to [email].
+  Future<void> sendPasswordReset(String email) async {
+    await _http.request<dynamic>(
+      'POST',
+      '/api/auth/email/send-reset-password',
+      data: <String, dynamic>{'email': email},
+    );
+  }
+
+  /// Exchanges a 6-digit reset [code] for a single-use reset token.
+  Future<ResetTokenResponse> exchangeResetPasswordToken({
+    required String email,
+    required String code,
+  }) async {
+    final res = await _http.request<Map<String, dynamic>>(
+      'POST',
+      '/api/auth/email/exchange-reset-password-token',
+      data: <String, dynamic>{'email': email, 'code': code},
+    );
+    return ResetTokenResponse.fromJson(res.data!);
+  }
+
+  /// Resets the password using a reset [otp] (the token from
+  /// [exchangeResetPasswordToken] or a magic-link token).
+  Future<void> resetPassword({
+    required String otp,
+    required String newPassword,
+  }) async {
+    await _http.request<dynamic>(
+      'POST',
+      '/api/auth/email/reset-password',
+      data: <String, dynamic>{'newPassword': newPassword, 'otp': otp},
+    );
+  }
+
   /// Releases the broadcast stream controller.
   Future<void> dispose() => _stateController.close();
 }
