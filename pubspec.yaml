@@ -8,6 +8,7 @@ environment:
 workspace:
   - packages/insforge_core
   - packages/insforge_auth
+  - packages/insforge_database
 
 dev_dependencies:
   melos: ^6.1.0
