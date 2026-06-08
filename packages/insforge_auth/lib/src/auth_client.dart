@@ -1,0 +1,131 @@
+// packages/insforge_auth/lib/src/auth_client.dart
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:insforge_core/insforge_core.dart';
+
+import 'auth_options.dart';
+import 'auth_state.dart';
+import 'enums.dart';
+import 'jwt.dart';
+import 'models/auth_response.dart';
+import 'models/profile.dart';
+import 'models/reset_token_response.dart';
+import 'models/session.dart';
+import 'models/sign_up_response.dart';
+import 'models/user.dart';
+
+/// Storage key for the persisted refresh token.
+const String kRefreshTokenKey = 'insforge_refresh_token';
+
+/// Storage key for the persisted access token.
+const String kAccessTokenKey = 'insforge_access_token';
+
+/// Storage key for the persisted serialized [User].
+const String kUserKey = 'insforge_user';
+
+/// Refresh proactively when the access token expires within this leeway.
+const Duration kProactiveRefreshLeeway = Duration(seconds: 30);
+
+/// High-level authentication client.
+///
+/// Wraps a shared [InsforgeHttpClient] and a [SessionStorage]. Writes the
+/// http client's access token, registers its refresh callback, persists the
+/// session, and broadcasts [AuthState] changes.
+class AuthClient {
+  AuthClient(
+    this._http,
+    this._storage, {
+    AuthOptions? options,
+  }) : _options = options ?? const AuthOptions() {
+    if (_options.autoRefreshToken) {
+      _http.registerRefreshCallback(_refreshForHttpClient);
+    }
+  }
+
+  final InsforgeHttpClient _http;
+  final SessionStorage _storage;
+  final AuthOptions _options;
+
+  final StreamController<AuthState> _stateController =
+      StreamController<AuthState>.broadcast();
+
+  Session? _currentSession;
+
+  /// Broadcast stream of authentication lifecycle changes.
+  Stream<AuthState> get onAuthStateChange => _stateController.stream;
+
+  /// The currently signed-in user, or null.
+  User? get currentUser => _currentSession?.user;
+
+  /// The current session, or null when signed out.
+  Session? get currentSession => _currentSession;
+
+  /// The `client_type` query parameter applied to token-issuing calls.
+  Map<String, dynamic> get _clientTypeQuery =>
+      <String, dynamic>{'client_type': _options.clientType.wireName};
+
+  // ---------------------------------------------------------------------------
+  // Email / password
+  // ---------------------------------------------------------------------------
+
+  /// Signs in with email + password. Persists and emits on success.
+  Future<AuthResponse> signIn({
+    required String email,
+    required String password,
+  }) async {
+    final res = await _http.request<Map<String, dynamic>>(
+      'POST',
+      '/api/auth/sessions',
+      data: <String, dynamic>{'email': email, 'password': password},
+      queryParameters: _clientTypeQuery,
+    );
+    final response = AuthResponse.fromJson(res.data!);
+    await _applySession(response.toSession(), AuthChangeEvent.signedIn);
+    return response;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Session application + persistence (shared by all auth flows)
+  // ---------------------------------------------------------------------------
+
+  Future<void> _applySession(Session session, AuthChangeEvent event) async {
+    _currentSession = session;
+    _http.accessToken = session.accessToken;
+    await _persist(session);
+    _stateController.add(AuthState(event, session));
+  }
+
+  Future<void> _persist(Session session) async {
+    await _storage.write(kAccessTokenKey, session.accessToken);
+    final refresh = session.refreshToken;
+    if (refresh != null) {
+      await _storage.write(kRefreshTokenKey, refresh);
+    }
+    await _storage.write(kUserKey, jsonEncode(session.user.toJson()));
+  }
+
+  Future<void> _clearPersisted() async {
+    await _storage.delete(kAccessTokenKey);
+    await _storage.delete(kRefreshTokenKey);
+    await _storage.delete(kUserKey);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Refresh callback for the HTTP client (reactive 401 refresh)
+  // ---------------------------------------------------------------------------
+
+  Future<String> _refreshForHttpClient() async {
+    final response = await refreshAccessToken();
+    return response.accessToken;
+  }
+
+  /// Refreshes the access token using the persisted refresh token.
+  /// Implemented in Task 14.
+  Future<AuthResponse> refreshAccessToken() {
+    throw UnimplementedError('refreshAccessToken is implemented in Task 14');
+  }
+
+  /// Releases the broadcast stream controller.
+  Future<void> dispose() => _stateController.close();
+}

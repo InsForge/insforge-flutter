@@ -1,6 +1,7 @@
 /// Authentication for the InsForge Flutter SDK.
 library insforge_auth;
 
+export 'src/auth_client.dart';
 export 'src/auth_options.dart';
 export 'src/auth_state.dart';
 export 'src/enums.dart';
