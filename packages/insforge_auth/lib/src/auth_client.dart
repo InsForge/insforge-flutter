@@ -350,6 +350,60 @@ class AuthClient {
     return updated;
   }
 
+  // ---------------------------------------------------------------------------
+  // Session restoration
+  // ---------------------------------------------------------------------------
+
+  /// Rehydrates a persisted session. When the stored access token is missing,
+  /// already expired, or expiring within [kProactiveRefreshLeeway], refreshes
+  /// using the stored refresh token; otherwise restores the stored session.
+  /// Returns the restored/refreshed [Session], or null when nothing is stored.
+  Future<Session?> restoreSession() async {
+    final refreshToken = await _storage.read(kRefreshTokenKey);
+    final accessToken = await _storage.read(kAccessTokenKey);
+    final userJson = await _storage.read(kUserKey);
+
+    if (refreshToken == null && accessToken == null) {
+      return null;
+    }
+
+    final needsRefresh = _accessTokenNeedsRefresh(accessToken);
+
+    if (needsRefresh && refreshToken != null && _options.autoRefreshToken) {
+      try {
+        final response = await refreshAccessToken();
+        return response.toSession();
+      } catch (_) {
+        // Fall through to restoring the stored (possibly stale) session.
+      }
+    }
+
+    if (accessToken != null && userJson != null) {
+      final user = User.fromJson(
+        Map<String, dynamic>.from(jsonDecode(userJson) as Map),
+      );
+      final session = Session(
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+        user: user,
+      );
+      _currentSession = session;
+      _http.accessToken = accessToken;
+      _stateController.add(AuthState(AuthChangeEvent.signedIn, session));
+      return session;
+    }
+
+    return null;
+  }
+
+  bool _accessTokenNeedsRefresh(String? accessToken) {
+    if (accessToken == null) return true;
+    final expiry = decodeJwtExpiry(accessToken);
+    if (expiry == null) return true;
+    final threshold = DateTime.now().toUtc().add(kProactiveRefreshLeeway);
+    return expiry.isBefore(threshold);
+  }
+
   /// Releases the broadcast stream controller.
   Future<void> dispose() => _stateController.close();
 }
