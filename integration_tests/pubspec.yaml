@@ -9,18 +9,7 @@ environment:
 
 dependencies:
   dio: ^5.7.0
-  insforge_core:
-    path: ../packages/insforge_core
-  insforge_auth:
-    path: ../packages/insforge_auth
-  insforge_database:
-    path: ../packages/insforge_database
-  insforge_storage:
-    path: ../packages/insforge_storage
-  insforge_functions:
-    path: ../packages/insforge_functions
-  insforge_ai:
-    path: ../packages/insforge_ai
+  insforge: ^0.1.0
 
 dev_dependencies:
   lints: ^4.0.0

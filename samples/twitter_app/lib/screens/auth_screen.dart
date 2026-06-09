@@ -1,7 +1,7 @@
 // samples/twitter_app/lib/screens/auth_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:insforge/insforge.dart';
+import 'package:insforge_flutter/insforge_flutter.dart';
 
 import '../providers.dart';
 
