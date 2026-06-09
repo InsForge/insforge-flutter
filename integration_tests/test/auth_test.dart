@@ -95,6 +95,36 @@ void main() {
           throwsA(isA<InsforgeException>()),
         );
       });
+
+      // Email-verification (code) flow used by the sample's registration UI.
+      // We can't read the emailed code here, so we assert the SDK plumbing:
+      // a resend is accepted and a wrong code is rejected with a typed error.
+      test('verification code flow: resend is accepted, wrong code rejected',
+          () async {
+        final auth = _newAuth();
+        final email = env.uniqueEmail('verify');
+        final res = await auth.signUp(email: email, password: testPassword);
+
+        if (res.hasSession) {
+          // Verification is disabled on this project — nothing to verify.
+          return;
+        }
+        expect(res.requireEmailVerification, isTrue);
+
+        // Resend the code. Success or a structured backend response (e.g. a
+        // rate-limit) is fine; a transport/parse failure is not.
+        try {
+          await auth.sendVerificationEmail(email);
+        } on InsforgeHttpException {
+          // Acceptable (e.g. throttled).
+        }
+
+        // An obviously-wrong 6-digit code must be rejected with a typed error.
+        await expectLater(
+          auth.verifyEmail(email: email, otp: '000000'),
+          throwsA(isA<InsforgeHttpException>()),
+        );
+      });
     },
     skip: env.coreSkipReason,
   );
