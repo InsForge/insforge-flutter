@@ -33,3 +33,6 @@ jobs:
       - name: Test insforge_functions
         working-directory: packages/insforge_functions
         run: dart test
+      - name: Test insforge_ai
+        working-directory: packages/insforge_ai
+        run: dart test
