@@ -4,18 +4,22 @@ import 'user.dart';
 
 /// Response from `POST /api/auth/users`.
 ///
-/// When email verification is required, [accessToken] and [refreshToken] are
-/// null and [requireEmailVerification] is true; the caller must complete the
-/// verification flow before a session exists.
+/// When email verification is required, the backend omits the session fields:
+/// [user], [accessToken], and [refreshToken] are all null and
+/// [requireEmailVerification] is true; the caller must complete the
+/// verification flow before a session exists. [user] is therefore nullable —
+/// it is only present on an immediate-session signup (verification disabled).
 class SignUpResponse {
   const SignUpResponse({
-    required this.user,
+    this.user,
     this.accessToken,
     this.refreshToken,
     this.requireEmailVerification = false,
   });
 
-  final User user;
+  /// The created user, or null when email verification is required (the server
+  /// returns no user object until the account is verified).
+  final User? user;
   final String? accessToken;
   final String? refreshToken;
   final bool requireEmailVerification;
@@ -24,8 +28,11 @@ class SignUpResponse {
   bool get hasSession => accessToken != null;
 
   factory SignUpResponse.fromJson(Map<String, dynamic> json) {
+    final rawUser = json['user'];
     return SignUpResponse(
-      user: User.fromJson(Map<String, dynamic>.from(json['user'] as Map)),
+      user: rawUser is Map
+          ? User.fromJson(Map<String, dynamic>.from(rawUser))
+          : null,
       accessToken: json['accessToken'] as String?,
       refreshToken: json['refreshToken'] as String?,
       requireEmailVerification:
@@ -33,14 +40,16 @@ class SignUpResponse {
     );
   }
 
-  /// Builds a [Session] when this response carries an access token, else null.
+  /// Builds a [Session] when this response carries both an access token and a
+  /// user (i.e. an immediate-session signup), else null.
   Session? toSession() {
     final token = accessToken;
-    if (token == null) return null;
+    final sessionUser = user;
+    if (token == null || sessionUser == null) return null;
     return Session(
       accessToken: token,
       refreshToken: refreshToken,
-      user: user,
+      user: sessionUser,
     );
   }
 }

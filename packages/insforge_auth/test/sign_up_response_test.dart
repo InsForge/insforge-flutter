@@ -38,5 +38,20 @@ void main() {
       expect(r.requireEmailVerification, isFalse);
       expect(r.hasSession, isTrue);
     });
+
+    test('tolerates a verification-required body with no user object', () {
+      // The real backend omits user/accessToken/refreshToken entirely when
+      // email verification is enabled; only a status flag is returned.
+      final r = SignUpResponse.fromJson(<String, dynamic>{
+        'message': 'Verification email sent',
+        'requireEmailVerification': true,
+      });
+      expect(r.user, isNull);
+      expect(r.accessToken, isNull);
+      expect(r.refreshToken, isNull);
+      expect(r.requireEmailVerification, isTrue);
+      expect(r.hasSession, isFalse);
+      expect(r.toSession(), isNull);
+    });
   });
 }

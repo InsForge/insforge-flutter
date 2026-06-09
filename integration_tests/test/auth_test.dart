@@ -34,12 +34,14 @@ void main() {
           name: 'SDK Integration Test',
         );
 
-        expect(res.user.email, email);
-        expect(res.user.id, isNotEmpty);
-        // With email verification enabled, hasSession is false and
-        // requireEmailVerification is true; both shapes are acceptable.
+        // Two valid shapes: (a) verification disabled → an immediate session
+        // with a user; (b) verification required → no session and no user
+        // object (only a status flag), per the real backend contract.
         if (res.hasSession) {
           expect(res.accessToken, isNotNull);
+          expect(res.user, isNotNull);
+          expect(res.user!.email, email);
+          expect(res.user!.id, isNotEmpty);
         } else {
           expect(res.requireEmailVerification, isTrue);
         }
