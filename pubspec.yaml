@@ -12,6 +12,7 @@ workspace:
   - packages/insforge_storage
   - packages/insforge_functions
   - packages/insforge_ai
+  - packages/insforge
 
 dev_dependencies:
   melos: ^6.1.0

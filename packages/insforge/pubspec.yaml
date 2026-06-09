@@ -1,0 +1,33 @@
+# packages/insforge/pubspec.yaml
+name: insforge
+description: The InsForge Flutter SDK — unified client + Flutter integration.
+version: 0.1.0
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: ^3.5.0
+  flutter: '>=3.24.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_secure_storage: ^9.2.2
+  dio: ^5.7.0
+  insforge_core:
+    path: ../insforge_core
+  insforge_auth:
+    path: ../insforge_auth
+  insforge_database:
+    path: ../insforge_database
+  insforge_storage:
+    path: ../insforge_storage
+  insforge_functions:
+    path: ../insforge_functions
+  insforge_ai:
+    path: ../insforge_ai
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
