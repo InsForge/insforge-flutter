@@ -33,6 +33,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     super.dispose();
   }
 
+  // This screen reads and writes the `profiles` records table — the same
+  // table the feed joins for author name/avatar and that Compose upserts a row
+  // into. (InsForge also has a separate auth-side profile via
+  // auth.getProfile/updateProfile; the sample standardizes on the `profiles`
+  // table so edits are visible there and reflected in the feed.)
+
   Future<void> _load() async {
     final user = ref.read(currentUserProvider);
     if (user == null) {
@@ -40,9 +46,21 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       return;
     }
     try {
-      final profile = await ref.read(authClientProvider).getProfile(user.id);
-      _name.text = profile.profile['name'] as String? ?? '';
-      _bio.text = profile.profile['bio'] as String? ?? '';
+      final rows = await ref
+          .read(insforgeClientProvider)
+          .database
+          .from('profiles')
+          .select('name,bio')
+          .eq('id', user.id)
+          .limit(1)
+          .execute();
+      if (rows.isNotEmpty) {
+        _name.text = rows.first['name'] as String? ?? '';
+        _bio.text = rows.first['bio'] as String? ?? '';
+      } else {
+        // No profiles row yet — seed the name from the auth user.
+        _name.text = user.name ?? '';
+      }
     } on InsforgeException catch (e) {
       _error = e.message;
     } finally {
@@ -51,16 +69,22 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   Future<void> _save() async {
+    final user = ref.read(currentUserProvider);
+    if (user == null) return;
     setState(() {
       _saving = true;
       _error = null;
       _info = null;
     });
     try {
-      await ref.read(authClientProvider).updateProfile(<String, dynamic>{
-        'name': _name.text.trim(),
-        'bio': _bio.text.trim(),
-      });
+      await ref.read(insforgeClientProvider).database.from('profiles').upsert(
+        <String, dynamic>{
+          'id': user.id,
+          'name': _name.text.trim(),
+          'bio': _bio.text.trim(),
+        },
+        onConflict: 'id',
+      ).execute();
       setState(() => _info = 'Profile saved.');
     } on InsforgeException catch (e) {
       setState(() => _error = e.message);
