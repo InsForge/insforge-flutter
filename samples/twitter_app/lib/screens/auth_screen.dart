@@ -50,23 +50,60 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
           // Verification disabled — the authStateProvider stream flips the gate.
           return;
         }
-        // Verification required: move to the code-entry step. The backend has
-        // already emailed a 6-digit code (resend with `Resend code`).
-        setState(() {
-          _awaitingCode = true;
-          _pendingEmail = email;
-          _info = 'We sent a 6-digit code to $email. Enter it below.';
-        });
+        // Verification required: move to the code-entry step. Sign-up already
+        // emailed a 6-digit code, so no need to resend here.
+        await _startVerification(email, resend: false);
       } else {
         await auth.signIn(email: email, password: _password.text);
         // On success the authStateProvider stream flips the gate automatically.
       }
     } on InsforgeHttpException catch (e) {
-      setState(() => _error = e.message);
+      // A returning user whose email is still unverified gets a 403 here —
+      // route them into the verification step instead of a dead-end error.
+      if (!_isSignUp && _isEmailUnverified(e)) {
+        await _startVerification(email, resend: true);
+      } else {
+        setState(() => _error = e.message);
+      }
     } catch (e) {
       setState(() => _error = '$e');
     } finally {
       if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  /// The backend returns 403 "Email verification required" when an unverified
+  /// account tries to sign in.
+  bool _isEmailUnverified(InsforgeHttpException e) =>
+      e.statusCode == 403 && e.message.toLowerCase().contains('verif');
+
+  /// Switches to the code-entry view for [email]. When [resend] is true (the
+  /// returning-user path, where the original code has likely expired) a fresh
+  /// code is requested.
+  Future<void> _startVerification(String email, {required bool resend}) async {
+    setState(() {
+      _awaitingCode = true;
+      _pendingEmail = email;
+      _error = null;
+      _info = resend
+          ? "Your email isn't verified yet — sending a new code…"
+          : 'We sent a 6-digit code to $email. Enter it below.';
+    });
+    if (!resend) return;
+    try {
+      await ref.read(authClientProvider).sendVerificationEmail(email);
+      if (mounted) {
+        setState(
+          () => _info = 'We sent a 6-digit code to $email. Enter it below.',
+        );
+      }
+    } on InsforgeHttpException catch (e) {
+      if (mounted) {
+        setState(
+          () => _info = 'Enter the code from your email, or tap Resend. '
+              '(${e.message})',
+        );
+      }
     }
   }
 
