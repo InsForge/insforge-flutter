@@ -16,8 +16,7 @@
 //
 // When the table is absent the suite degrades to asserting that the SDK
 // surfaces an InsforgeHttpException, rather than failing.
-import 'package:insforge_core/insforge_core.dart';
-import 'package:insforge_database/insforge_database.dart';
+import 'package:insforge/insforge.dart';
 import 'package:test/test.dart';
 
 import 'support/test_env.dart';

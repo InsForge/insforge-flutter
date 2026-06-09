@@ -5,8 +5,7 @@
 // Prerequisite (optional): a `hello-world` function deployed on the project.
 // Both a 2xx response and a structured InsforgeHttpException are acceptable
 // outcomes for an existing slug; a clearly non-existent slug must throw.
-import 'package:insforge_core/insforge_core.dart';
-import 'package:insforge_functions/insforge_functions.dart';
+import 'package:insforge/insforge.dart';
 import 'package:test/test.dart';
 
 import 'support/test_env.dart';

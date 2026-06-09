@@ -12,8 +12,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  insforge:
-    path: ../../packages/insforge
+  insforge_flutter: ^0.1.0
   flutter_riverpod: ^2.5.1
   url_launcher: ^6.3.0
   app_links: ^6.3.0

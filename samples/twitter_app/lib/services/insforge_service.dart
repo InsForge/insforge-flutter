@@ -2,7 +2,7 @@
 import 'dart:async';
 
 import 'package:app_links/app_links.dart';
-import 'package:insforge/insforge.dart';
+import 'package:insforge_flutter/insforge_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../config.dart';

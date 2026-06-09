@@ -1,0 +1,23 @@
+# packages/insforge_flutter/pubspec.yaml
+name: insforge_flutter
+description: Flutter integration for the InsForge SDK — secure session storage and a one-line initializer.
+version: 0.1.0
+repository: https://github.com/InsForge/insforge-flutter
+homepage: https://insforge.dev
+resolution: workspace
+
+environment:
+  sdk: ^3.5.0
+  flutter: '>=3.24.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_secure_storage: ^9.2.2
+  insforge: ^0.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  flutter_secure_storage_platform_interface: ^1.1.2

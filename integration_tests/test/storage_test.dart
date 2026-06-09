@@ -9,8 +9,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:insforge_core/insforge_core.dart';
-import 'package:insforge_storage/insforge_storage.dart';
+import 'package:insforge/insforge.dart';
 import 'package:test/test.dart';
 
 import 'support/test_env.dart';

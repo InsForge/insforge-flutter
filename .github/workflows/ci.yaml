@@ -7,9 +7,9 @@ on:
   pull_request:
 
 jobs:
-  # The workspace now contains a Flutter package (packages/insforge), so the
+  # The workspace contains a Flutter package (packages/insforge_flutter), so the
   # whole workspace must be resolved with the Flutter toolchain (which bundles
-  # Dart). The pure-Dart feature packages are still tested with `dart test`.
+  # Dart). The pure-Dart `insforge` package is tested with `dart test`.
   analyze-and-test:
     runs-on: ubuntu-latest
     steps:
@@ -21,27 +21,14 @@ jobs:
         run: flutter pub get
       - name: Analyze
         run: dart analyze .
-      - name: Test insforge_core
-        working-directory: packages/insforge_core
-        run: dart test
-      - name: Test insforge_auth
-        working-directory: packages/insforge_auth
-        run: dart test
-      - name: Test insforge_database
-        working-directory: packages/insforge_database
-        run: dart test
-      - name: Test insforge_storage
-        working-directory: packages/insforge_storage
-        run: dart test
-      - name: Test insforge_functions
-        working-directory: packages/insforge_functions
-        run: dart test
-      - name: Test insforge_ai
-        working-directory: packages/insforge_ai
-        run: dart test
-      - name: Analyze insforge (umbrella)
+      - name: Check version is in sync (both packages + version.dart)
+        run: dart run tool/set_version.dart --check
+      - name: Test insforge (pure Dart)
         working-directory: packages/insforge
+        run: dart test
+      - name: Analyze insforge_flutter
+        working-directory: packages/insforge_flutter
         run: flutter analyze
-      - name: Test insforge (umbrella)
-        working-directory: packages/insforge
+      - name: Test insforge_flutter
+        working-directory: packages/insforge_flutter
         run: flutter test

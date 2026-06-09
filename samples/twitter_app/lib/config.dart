@@ -7,10 +7,11 @@ class AppConfig {
 
   /// Your InsForge project base URL (no module path, no trailing slash).
   /// Local dev example: `http://10.0.2.2:7130` (Android emulator → host).
-  static const String backendUrl = 'http://localhost:7130';
+  static const String backendUrl = 'https://4cp6qchj.us-east.insforge.app';
 
   /// Your project's anon (public) key.
-  static const String anonKey = 'REPLACE_WITH_ANON_KEY';
+  static const String anonKey =
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3OC0xMjM0LTU2NzgtOTBhYi1jZGVmMTIzNDU2NzgiLCJlbWFpbCI6ImFub25AaW5zZm9yZ2UuY29tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwMjQxMDV9.Mv5q8eA5sUBitTe1JI8YgBHp625uIz-c8P-_YTC6oVs';
 
   /// Optional OpenRouter API key enabling the "suggest a caption" AI feature.
   /// Leave empty to disable AI (the Compose screen hides the button).

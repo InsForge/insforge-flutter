@@ -6,8 +6,7 @@
 // Signup-flow tests only need core config (base URL + anon key). The
 // authenticated tests (sign in with the fixed account, profile, signOut) need
 // a pre-verified account (authConfigured).
-import 'package:insforge_auth/insforge_auth.dart';
-import 'package:insforge_core/insforge_core.dart';
+import 'package:insforge/insforge.dart';
 import 'package:test/test.dart';
 
 import 'support/test_env.dart';

@@ -7,8 +7,7 @@
 // When a model is unavailable/disabled the API throws; those errors are
 // caught (mirroring the JS `isModelUnavailable`) and the test is marked
 // skipped rather than masking a real assertion failure.
-import 'package:insforge_ai/insforge_ai.dart';
-import 'package:insforge_core/insforge_core.dart';
+import 'package:insforge/insforge.dart';
 import 'package:test/test.dart';
 
 import 'support/test_env.dart';

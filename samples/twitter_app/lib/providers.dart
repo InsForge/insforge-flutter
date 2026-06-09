@@ -2,7 +2,7 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:insforge/insforge.dart';
+import 'package:insforge_flutter/insforge_flutter.dart';
 
 import 'services/insforge_service.dart';
 

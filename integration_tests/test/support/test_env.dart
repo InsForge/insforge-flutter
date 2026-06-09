@@ -5,8 +5,7 @@
 // NO env vars set every integration test SKIPS (safe for normal CI).
 import 'dart:io';
 
-import 'package:insforge_auth/insforge_auth.dart';
-import 'package:insforge_core/insforge_core.dart';
+import 'package:insforge/insforge.dart';
 
 /// Fallback password used for freshly created (self-registered) users.
 const String testPassword = 'Test_P@ssword_123!';

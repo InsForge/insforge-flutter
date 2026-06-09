@@ -6,13 +6,8 @@ environment:
 
 # Pub workspace members. Later plans append their package paths here.
 workspace:
-  - packages/insforge_core
-  - packages/insforge_auth
-  - packages/insforge_database
-  - packages/insforge_storage
-  - packages/insforge_functions
-  - packages/insforge_ai
   - packages/insforge
+  - packages/insforge_flutter
   - samples/twitter_app
   - integration_tests
 

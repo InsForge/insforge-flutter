@@ -1,5 +1,5 @@
 // samples/twitter_app/lib/models/tweet.dart
-import 'package:insforge/insforge.dart';
+import 'package:insforge_flutter/insforge_flutter.dart';
 
 /// A tweet plus its joined author profile and like state.
 class Tweet {

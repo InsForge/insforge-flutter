@@ -1,18 +1,11 @@
 // packages/insforge/lib/src/insforge_client.dart
-import 'package:insforge_ai/insforge_ai.dart';
-import 'package:insforge_auth/insforge_auth.dart';
-import 'package:insforge_core/insforge_core.dart';
-import 'package:insforge_database/insforge_database.dart';
-import 'package:insforge_functions/insforge_functions.dart';
-import 'package:insforge_storage/insforge_storage.dart';
-
-import 'secure_session_storage.dart';
+import 'package:insforge/insforge.dart';
 
 /// The unified InsForge client.
 ///
 /// Constructs a single shared [InsforgeHttpClient] (used by `auth`, `database`,
-/// `storage`, and `functions`) and a single [SessionStorage] (a
-/// [SecureSessionStorage] by default). Each module is exposed as a lazily
+/// `storage`, and `functions`) and a single [SessionStorage] (an
+/// [InMemorySessionStorage] by default). Each module is exposed as a lazily
 /// cached getter.
 ///
 /// `ai` is the exception: per the SDK design, [AIClient] is a **standalone**
@@ -43,7 +36,7 @@ class InsforgeClient {
     String? openRouterApiKey,
     SessionStorage? sessionStorage,
   })  : _openRouterApiKey = openRouterApiKey,
-        sessionStorage = sessionStorage ?? SecureSessionStorage(),
+        sessionStorage = sessionStorage ?? InMemorySessionStorage(),
         http = InsforgeHttpClient(
           baseUrl: baseUrl,
           anonKey: anonKey,
@@ -54,7 +47,7 @@ class InsforgeClient {
   /// The shared HTTP transport used by every InsForge-backed module.
   final InsforgeHttpClient http;
 
-  /// The session store backing [auth]. A [SecureSessionStorage] by default.
+  /// The session store backing [auth]. An [InMemorySessionStorage] by default.
   final SessionStorage sessionStorage;
 
   final String? _openRouterApiKey;

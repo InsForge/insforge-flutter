@@ -3,7 +3,7 @@
 // Basic unauthenticated reachability check. Confirms the configured project
 // answers HTTP at all — a 2xx or a structured 4xx both prove reachability;
 // only a network/transport failure is a hard error.
-import 'package:insforge_core/insforge_core.dart';
+import 'package:insforge/insforge.dart';
 import 'package:test/test.dart';
 
 import 'support/test_env.dart';
