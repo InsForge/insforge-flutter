@@ -60,74 +60,74 @@ class QueryBuilder {
 
   /// Equality filter (`column=eq.value`).
   QueryBuilder eq(String column, Object value) {
-    _params[column] = 'eq.$value';
+    _addFilter(column, 'eq.$value');
     return this;
   }
 
   /// Inequality filter (`column=neq.value`).
   QueryBuilder neq(String column, Object value) {
-    _params[column] = 'neq.$value';
+    _addFilter(column, 'neq.$value');
     return this;
   }
 
   /// Greater-than filter.
   QueryBuilder gt(String column, Object value) {
-    _params[column] = 'gt.$value';
+    _addFilter(column, 'gt.$value');
     return this;
   }
 
   /// Greater-than-or-equal filter.
   QueryBuilder gte(String column, Object value) {
-    _params[column] = 'gte.$value';
+    _addFilter(column, 'gte.$value');
     return this;
   }
 
   /// Less-than filter.
   QueryBuilder lt(String column, Object value) {
-    _params[column] = 'lt.$value';
+    _addFilter(column, 'lt.$value');
     return this;
   }
 
   /// Less-than-or-equal filter.
   QueryBuilder lte(String column, Object value) {
-    _params[column] = 'lte.$value';
+    _addFilter(column, 'lte.$value');
     return this;
   }
 
   /// Case-sensitive pattern match (`%` wildcard).
   QueryBuilder like(String column, String pattern) {
-    _params[column] = 'like.$pattern';
+    _addFilter(column, 'like.$pattern');
     return this;
   }
 
   /// Case-insensitive pattern match (`%` wildcard).
   QueryBuilder ilike(String column, String pattern) {
-    _params[column] = 'ilike.$pattern';
+    _addFilter(column, 'ilike.$pattern');
     return this;
   }
 
   /// `IS` filter: null when [value] is null, otherwise `is.true`/`is.false`.
   QueryBuilder isFilter(String column, bool? value) {
     final encoded = value == null ? 'null' : (value ? 'true' : 'false');
-    _params[column] = 'is.$encoded';
+    _addFilter(column, 'is.$encoded');
     return this;
   }
 
   /// `IN` filter: `column=in.(a,b,c)`.
   QueryBuilder inFilter(String column, List<Object> values) {
-    _params[column] = 'in.(${values.join(',')})';
+    _addFilter(column, 'in.(${values.join(',')})');
     return this;
   }
 
   /// Contains filter (`cs`, PostgreSQL `@>`).
   QueryBuilder contains(String column, Object value) {
-    _params[column] = 'cs.$value';
+    _addFilter(column, 'cs.$value');
     return this;
   }
 
   /// Contained-by filter (`cd`, PostgreSQL `<@`).
   QueryBuilder containedBy(String column, Object value) {
-    _params[column] = 'cd.$value';
+    _addFilter(column, 'cd.$value');
     return this;
   }
 
@@ -141,7 +141,7 @@ class QueryBuilder {
   /// `status=not.eq.archived`.
   QueryBuilder not(String column, String operator, Object? value) {
     final encoded = value == null ? 'null' : '$value';
-    _params[column] = 'not.$operator.$encoded';
+    _addFilter(column, 'not.$operator.$encoded');
     return this;
   }
 
@@ -155,14 +155,31 @@ class QueryBuilder {
     String? config,
   }) {
     final configPart = (config != null && config.isNotEmpty) ? '($config)' : '';
-    _params[column] = '${type.value}$configPart.$query';
+    _addFilter(column, '${type.value}$configPart.$query');
     return this;
   }
 
   /// Escape hatch for any PostgREST operator: `filter('id', 'in', '(1,2)')`.
   QueryBuilder filter(String column, String operator, Object value) {
-    _params[column] = '$operator.$value';
+    _addFilter(column, '$operator.$value');
     return this;
+  }
+
+  /// Records a `column=op.value` filter.
+  ///
+  /// Multiple filters on the SAME column accumulate (PostgREST ANDs them),
+  /// serialized as repeated query parameters — e.g. `.gt('n', 1).lt('n', 9)`
+  /// becomes `n=gt.1&n=lt.9`. The value is a `String` for a single filter and
+  /// a `List<String>` once a column carries more than one.
+  void _addFilter(String column, String encoded) {
+    final existing = _params[column];
+    if (existing == null) {
+      _params[column] = encoded;
+    } else if (existing is List<String>) {
+      existing.add(encoded);
+    } else {
+      _params[column] = <String>[existing as String, encoded];
+    }
   }
 
   // ----- read terminal -----

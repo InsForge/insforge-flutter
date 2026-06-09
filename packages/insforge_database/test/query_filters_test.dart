@@ -58,12 +58,21 @@ void main() {
 
     expect(adapter.single.queryParameters, <String, dynamic>{
       'role': 'neq.admin',
-      'age': 'lt.65',
-      'score': 'lte.100',
+      // Two filters on the same column accumulate (PostgREST ANDs them);
+      // dio serializes the list as repeated params (age=gt.18&age=lt.65).
+      'age': <String>['gt.18', 'lt.65'],
+      'score': <String>['gte.5', 'lte.100'],
       'name': 'like.A%',
       'email': 'ilike.%@x.com',
     });
-    // Note: gt('age') then lt('age') — last write wins for a repeated column.
+  });
+
+  test('a single filter on a column stays a bare string (not a list)', () async {
+    final adapter = RecordingAdapter(responseBody: <dynamic>[]);
+    final db = DatabaseClient(_client(adapter));
+
+    await db.from('t').eq('status', 'active').execute();
+    expect(adapter.single.queryParameters['status'], 'eq.active');
   });
 
   test('isFilter encodes null and booleans', () async {
