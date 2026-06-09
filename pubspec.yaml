@@ -14,6 +14,7 @@ workspace:
   - packages/insforge_ai
   - packages/insforge
   - samples/twitter_app
+  - integration_tests
 
 dev_dependencies:
   melos: ^6.1.0

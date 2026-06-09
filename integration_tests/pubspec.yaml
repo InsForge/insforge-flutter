@@ -1,0 +1,27 @@
+# integration_tests/pubspec.yaml
+name: insforge_integration_tests
+description: Live-backend integration test suite for the InsForge Flutter SDK.
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: ^3.5.0
+
+dependencies:
+  dio: ^5.7.0
+  insforge_core:
+    path: ../packages/insforge_core
+  insforge_auth:
+    path: ../packages/insforge_auth
+  insforge_database:
+    path: ../packages/insforge_database
+  insforge_storage:
+    path: ../packages/insforge_storage
+  insforge_functions:
+    path: ../packages/insforge_functions
+  insforge_ai:
+    path: ../packages/insforge_ai
+
+dev_dependencies:
+  lints: ^4.0.0
+  test: ^1.25.0
