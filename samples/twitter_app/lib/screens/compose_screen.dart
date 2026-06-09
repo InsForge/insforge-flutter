@@ -83,6 +83,18 @@ class _ComposeScreenState extends ConsumerState<ComposeScreen> {
     });
     final client = ref.read(insforgeClientProvider);
     try {
+      // `tweets.user_id` references `profiles(id)`, but InsForge does not
+      // auto-create a profiles row on signup. Ensure one exists for the
+      // current user (idempotent) before posting, so the FK is satisfied and
+      // the feed's author join has a name to show.
+      await client.database.from('profiles').upsert(
+        <String, dynamic>{
+          'id': user.id,
+          'name': user.name ?? user.email,
+        },
+        onConflict: 'id',
+      ).execute();
+
       String? imageUrl;
       if (_imageBytes != null) {
         final stored = await client.storage
