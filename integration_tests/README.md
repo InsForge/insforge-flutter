@@ -40,12 +40,13 @@ For full (non-degraded) coverage, the test project should provide:
 ### Database table `sdk_test`
 
 ```sql
+-- InsForge gives every records table a uuid `id` primary key by default,
+-- so you only need to add the data columns. An integer/serial id works too —
+-- the suite treats `id` as opaque (uuid string or int).
 CREATE TABLE sdk_test (
-  id         serial PRIMARY KEY,
-  name       text NOT NULL,
-  value      text,
-  score      integer DEFAULT 0,
-  created_at timestamptz DEFAULT now()
+  name   text NOT NULL,
+  value  text,
+  score  integer DEFAULT 0
 );
 ```
 

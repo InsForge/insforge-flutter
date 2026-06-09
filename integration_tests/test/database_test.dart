@@ -3,14 +3,16 @@
 // Database module integration tests, exercising the PostgREST-style query
 // builder. Needs the fixed pre-verified account (authConfigured).
 //
-// Prerequisite: a table `sdk_test` on the test project:
-//   CREATE TABLE sdk_test (
-//     id         serial PRIMARY KEY,
-//     name       text NOT NULL,
-//     value      text,
-//     score      integer DEFAULT 0,
-//     created_at timestamptz DEFAULT now()
-//   );
+// Prerequisite: a table `sdk_test` on the test project with at least:
+//     id      (PRIMARY KEY — InsForge defaults to a uuid/text id, but an
+//              integer serial works too; the suite treats id as opaque)
+//     name    text NOT NULL
+//     value   text
+//     score   integer DEFAULT 0
+//
+// Because `id` may be a uuid string or an integer depending on how the table
+// was created, this suite never assumes its Dart type — ids are kept as
+// `Object` and passed straight back to filters.
 //
 // When the table is absent the suite degrades to asserting that the SDK
 // surfaces an InsforgeHttpException, rather than failing.
@@ -27,7 +29,7 @@ void main() {
     'Database Module',
     () {
       late DatabaseClient db;
-      final List<int> insertedIds = <int>[];
+      final List<Object> insertedIds = <Object>[];
       var tableAvailable = true;
 
       setUpAll(() async {
@@ -61,7 +63,7 @@ void main() {
           try {
             await db
                 .from(_table)
-                .inFilter('id', insertedIds.cast<Object>())
+                .inFilter('id', insertedIds)
                 .delete()
                 .execute();
           } catch (_) {
@@ -132,7 +134,7 @@ void main() {
         expect(row['name'], name);
         expect(row['value'], 'single');
         expect(row['score'], 10);
-        insertedIds.add(row['id'] as int);
+        insertedIds.add(row['id'] as Object);
       });
 
       test('insert multiple rows (batch)', () async {
@@ -149,7 +151,7 @@ void main() {
 
         expect(rows, hasLength(2));
         for (final row in rows) {
-          insertedIds.add(row['id'] as int);
+          insertedIds.add(row['id'] as Object);
         }
       });
 
@@ -161,7 +163,7 @@ void main() {
             .insert(<String, dynamic>{'name': tag, 'value': 'before', 'score': 0})
             .select()
             .execute();
-        final id = inserted.first['id'] as int;
+        final Object id = inserted.first['id'] as Object;
         insertedIds.add(id);
 
         final updated = await db
@@ -191,7 +193,7 @@ void main() {
 
         expect(rows, hasLength(1));
         expect(rows.first['name'], tag);
-        insertedIds.add(rows.first['id'] as int);
+        insertedIds.add(rows.first['id'] as Object);
       });
 
       test('delete removes matching rows', () async {
@@ -202,7 +204,7 @@ void main() {
             .insert(<String, dynamic>{'name': tag, 'value': 'to-delete'})
             .select()
             .execute();
-        final id = inserted.first['id'] as int;
+        final Object id = inserted.first['id'] as Object;
 
         await db.from(_table).eq('id', id).delete().execute();
 
@@ -212,7 +214,7 @@ void main() {
       });
 
       group('filters', () {
-        late List<int> seedIds;
+        late List<Object> seedIds;
         late String tag;
 
         setUp(() async {
@@ -227,7 +229,8 @@ void main() {
               ])
               .select()
               .execute();
-          seedIds = seeded.map((Map<String, dynamic> r) => r['id'] as int).toList();
+          seedIds =
+              seeded.map((Map<String, dynamic> r) => r['id'] as Object).toList();
           insertedIds.addAll(seedIds);
         });
 
