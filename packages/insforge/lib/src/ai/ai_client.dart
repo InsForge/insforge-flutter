@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 
+import '../core/version.dart';
 import 'chat_completions.dart';
 import 'embeddings_api.dart';
 import 'images_api.dart';
@@ -7,8 +8,6 @@ import 'models_api.dart';
 
 /// Default OpenRouter API base URL.
 const String openRouterBaseUrl = 'https://openrouter.ai/api/v1';
-
-const String _userAgent = 'insforge-flutter-ai/0.1.0';
 
 /// Groups the chat sub-namespace (`client.chat.completions`).
 class Chat {
@@ -34,7 +33,7 @@ class AIClient {
       ..baseUrl = baseUrl
       ..headers = <String, dynamic>{
         'Authorization': 'Bearer $apiKey',
-        'User-Agent': _userAgent,
+        'User-Agent': insforgeUserAgent,
         if (referer != null) 'HTTP-Referer': referer,
         if (title != null) 'X-Title': title,
         ...this.dio.options.headers,

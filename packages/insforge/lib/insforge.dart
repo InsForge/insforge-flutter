@@ -10,6 +10,7 @@ export 'src/core/logging_interceptor.dart';
 export 'src/core/options.dart';
 export 'src/core/session_storage.dart';
 export 'src/core/url.dart';
+export 'src/core/version.dart';
 
 // --- auth ---
 export 'src/auth/auth_client.dart';

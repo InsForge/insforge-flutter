@@ -102,6 +102,45 @@ docs(readme): document the AI module
 Scopes are typically a module name (`auth`, `database`, `storage`,
 `functions`, `ai`, `core`) or `sample` / `integration` / `ci`.
 
+## Versioning & releasing
+
+`insforge` and `insforge_flutter` are released **in lockstep** — they always
+share the same version number. The version lives in three places that must stay
+in sync:
+
+- `packages/insforge/pubspec.yaml` → `version:`
+- `packages/insforge_flutter/pubspec.yaml` → `version:` **and** its
+  `insforge: ^<version>` dependency constraint
+- `packages/insforge/lib/src/core/version.dart` → `insforgeSdkVersion`
+  (a generated constant; the runtime `User-Agent` is `InsForge-Dart/<version>`)
+
+Don't edit these by hand — use the tool, which updates all of them at once:
+
+```bash
+dart run tool/set_version.dart 0.2.0   # set the version everywhere
+dart run tool/set_version.dart --check # verify they're in sync (CI runs this)
+```
+
+`version.dart` is generated; never edit it directly. CI fails if the three drift
+apart.
+
+### Release checklist
+
+1. `dart run tool/set_version.dart <new-version>`.
+2. Add a `## <new-version>` section to each package's `CHANGELOG.md`.
+3. Commit, open a PR, merge to `main`.
+4. Tag the release: `git tag v<new-version> && git push --tags`.
+5. Publish **in order** (the Flutter package depends on the Dart one):
+   ```bash
+   cd packages/insforge && dart pub publish          # wait until it's live
+   cd ../insforge_flutter && dart pub publish
+   ```
+
+> Note on 0.x: under SemVer, `^0.1.0` means `>=0.1.0 <0.2.0`. Bumping the minor
+> (e.g. `0.1.x → 0.2.0`) is a breaking change, and the tool updates
+> `insforge_flutter`'s `insforge: ^…` constraint accordingly so it picks up the
+> new core.
+
 ## Pull requests
 
 1. Branch off `main`.

@@ -72,4 +72,19 @@ void main() {
 
     expect(adapter.requests.single['x-api-key'], <String>['apikey-xyz']);
   });
+
+  test('sends the versioned User-Agent (InsForge-Dart/<version>)', () async {
+    final adapter = RecordingAdapter();
+    final client = InsforgeHttpClient(
+      baseUrl: 'https://x.insforge.app',
+      anonKey: 'anon-123',
+    );
+    client.dio.httpClientAdapter = adapter;
+
+    await client.request<dynamic>('GET', '/api/database/records/posts');
+
+    expect(adapter.requests.single['User-Agent'], <String>[insforgeUserAgent]);
+    expect(insforgeUserAgent, 'InsForge-Dart/$insforgeSdkVersion');
+    expect(insforgeUserAgent, startsWith('InsForge-Dart/'));
+  });
 }

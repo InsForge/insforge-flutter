@@ -1,4 +1,4 @@
-// packages/insforge_core/lib/src/http_client.dart
+// packages/insforge/lib/src/core/http_client.dart
 import 'package:dio/dio.dart';
 
 import 'error_response.dart';
@@ -6,14 +6,13 @@ import 'errors.dart';
 import 'logging_interceptor.dart';
 import 'options.dart';
 import 'url.dart';
+import 'version.dart';
 
 /// Supplies an access token on demand (e.g. from an external auth provider).
 typedef AccessTokenProvider = String? Function();
 
 /// Performs a token refresh and returns the new access token. Throws on failure.
 typedef RefreshCallback = Future<String> Function();
-
-const String insforgeUserAgent = 'insforge-flutter/0.1.0';
 
 /// Shared HTTP transport for all InsForge SDK modules.
 ///

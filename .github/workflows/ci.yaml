@@ -21,6 +21,8 @@ jobs:
         run: flutter pub get
       - name: Analyze
         run: dart analyze .
+      - name: Check version is in sync (both packages + version.dart)
+        run: dart run tool/set_version.dart --check
       - name: Test insforge (pure Dart)
         working-directory: packages/insforge
         run: dart test
