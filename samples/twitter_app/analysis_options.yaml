@@ -1,0 +1,2 @@
+# samples/twitter_app/analysis_options.yaml
+include: ../../analysis_options.yaml

@@ -1,0 +1,14 @@
+/// Standalone OpenRouter (OpenAI-compatible) AI client.
+library insforge_ai;
+
+export 'src/errors.dart';
+export 'src/models/content_part.dart';
+export 'src/models/tool.dart';
+export 'src/models/chat_message.dart';
+export 'src/models/usage.dart';
+export 'src/models/chat_completion.dart';
+export 'src/models/chat_chunk.dart';
+export 'src/models/images.dart';
+export 'src/models/embeddings.dart';
+export 'src/models/ai_model.dart';
+export 'src/ai_client.dart';

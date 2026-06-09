@@ -1,0 +1,19 @@
+# pubspec.yaml
+name: _insforge_workspace
+publish_to: none
+environment:
+  sdk: ^3.5.0
+
+# Pub workspace members. Later plans append their package paths here.
+workspace:
+  - packages/insforge_core
+  - packages/insforge_auth
+  - packages/insforge_database
+  - packages/insforge_storage
+  - packages/insforge_functions
+  - packages/insforge_ai
+  - packages/insforge
+  - samples/twitter_app
+
+dev_dependencies:
+  melos: ^6.1.0

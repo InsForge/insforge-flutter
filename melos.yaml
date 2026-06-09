@@ -1,0 +1,18 @@
+# melos.yaml
+name: insforge_flutter
+
+packages:
+  - packages/**
+  - samples/**
+
+scripts:
+  analyze:
+    description: Analyze all packages.
+    run: dart analyze .
+  test:
+    description: Run tests in every package that has a test/ dir.
+    run: dart test
+    exec:
+      concurrency: 1
+    packageFilters:
+      dirExists: test

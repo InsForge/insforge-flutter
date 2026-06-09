@@ -1,0 +1,17 @@
+# packages/insforge_core/pubspec.yaml
+name: insforge_core
+description: Core HTTP, auth-token, error, and storage primitives shared by the InsForge Flutter SDK modules.
+version: 0.1.0
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: ^3.5.0
+
+dependencies:
+  dio: ^5.7.0
+  meta: ^1.15.0
+
+dev_dependencies:
+  lints: ^4.0.0
+  test: ^1.25.0
