@@ -79,8 +79,10 @@ void main() {
 
     expect(
       () => client.request<dynamic>('POST', '/api/auth/refresh'),
-      throwsA(isA<InsforgeHttpException>()
-          .having((e) => e.statusCode, 'statusCode', 401),),
+      throwsA(
+        isA<InsforgeHttpException>()
+            .having((e) => e.statusCode, 'statusCode', 401),
+      ),
     );
   });
 }

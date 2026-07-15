@@ -103,8 +103,7 @@ class ChatCompletionResponse {
   final Usage? usage;
 
   /// Convenience accessor for the first choice's text content.
-  String? get content =>
-      choices.isEmpty ? null : choices.first.message.content;
+  String? get content => choices.isEmpty ? null : choices.first.message.content;
 
   factory ChatCompletionResponse.fromJson(Map<String, dynamic> json) {
     final rawChoices = json['choices'];

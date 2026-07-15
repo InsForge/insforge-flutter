@@ -1,7 +1,6 @@
 // packages/insforge_storage/lib/src/storage_client.dart
 import 'package:insforge/insforge.dart';
 
-
 /// Entry point for InsForge storage: bucket administration plus per-bucket
 /// file operations via [from].
 ///

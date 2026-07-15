@@ -56,7 +56,8 @@ void main() {
       queryParameters: <String, dynamic>{'client_type': 'mobile'},
     );
 
-    final callback = Uri.parse('myapp://callback?insforge_code=insforge-code-1');
+    final callback =
+        Uri.parse('myapp://callback?insforge_code=insforge-code-1');
     final response = await auth.handleOAuthCallback(callback, 'verifier-1');
 
     expect(response.accessToken, 'oauth-access');

@@ -7,7 +7,8 @@ import 'package:test/test.dart';
 
 /// Records the headers of each request and returns a fixed JSON 200.
 class RecordingAdapter implements HttpClientAdapter {
-  final List<Map<String, List<String>>> requests = <Map<String, List<String>>>[];
+  final List<Map<String, List<String>>> requests =
+      <Map<String, List<String>>>[];
 
   @override
   Future<ResponseBody> fetch(
@@ -15,9 +16,13 @@ class RecordingAdapter implements HttpClientAdapter {
     Stream<Uint8List>? requestStream,
     Future<void>? cancelFuture,
   ) async {
-    requests.add(Map<String, List<String>>.from(options.headers.map(
-      (k, v) => MapEntry(k, <String>[v.toString()]),
-    ),),);
+    requests.add(
+      Map<String, List<String>>.from(
+        options.headers.map(
+          (k, v) => MapEntry(k, <String>[v.toString()]),
+        ),
+      ),
+    );
     return ResponseBody.fromString(
       '{"ok":true}',
       200,
@@ -42,7 +47,10 @@ void main() {
 
     await client.request<dynamic>('GET', '/api/database/records/posts');
 
-    expect(adapter.requests.single['Authorization'], <String>['Bearer anon-123']);
+    expect(
+      adapter.requests.single['Authorization'],
+      <String>['Bearer anon-123'],
+    );
   });
 
   test('prefers the session access token over the anon key', () async {
@@ -56,7 +64,10 @@ void main() {
 
     await client.request<dynamic>('GET', '/api/database/records/posts');
 
-    expect(adapter.requests.single['Authorization'], <String>['Bearer user-jwt']);
+    expect(
+      adapter.requests.single['Authorization'],
+      <String>['Bearer user-jwt'],
+    );
   });
 
   test('adds x-api-key when configured', () async {

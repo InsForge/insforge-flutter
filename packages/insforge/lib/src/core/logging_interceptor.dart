@@ -9,8 +9,7 @@ typedef LogSink = void Function(String message);
 /// Lightweight dio interceptor that logs requests/responses at the configured
 /// [LogLevel], redacting sensitive headers.
 class LoggingInterceptor extends Interceptor {
-  LoggingInterceptor(this.level, {LogSink? sink})
-      : sink = sink ?? _noop;
+  LoggingInterceptor(this.level, {LogSink? sink}) : sink = sink ?? _noop;
 
   final LogLevel level;
   final LogSink sink;
@@ -22,13 +21,18 @@ class LoggingInterceptor extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     if (_enabled) {
-      sink('→ ${options.method} ${options.uri} headers=${_redact(options.headers)}');
+      sink(
+        '→ ${options.method} ${options.uri} headers=${_redact(options.headers)}',
+      );
     }
     handler.next(options);
   }
 
   @override
-  void onResponse(Response<dynamic> response, ResponseInterceptorHandler handler) {
+  void onResponse(
+    Response<dynamic> response,
+    ResponseInterceptorHandler handler,
+  ) {
     if (_enabled) {
       sink('← ${response.statusCode} ${response.requestOptions.uri}');
     }
@@ -38,7 +42,9 @@ class LoggingInterceptor extends Interceptor {
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
     if (level.index >= LogLevel.error.index && level != LogLevel.none) {
-      sink('✗ ${err.response?.statusCode ?? '-'} ${err.requestOptions.uri}: ${err.message}');
+      sink(
+        '✗ ${err.response?.statusCode ?? '-'} ${err.requestOptions.uri}: ${err.message}',
+      );
     }
     handler.next(err);
   }

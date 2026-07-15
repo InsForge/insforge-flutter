@@ -25,8 +25,7 @@ const Map<String, String> _extensionToMime = <String, String>{
 /// case-insensitively. Returns the fallback when there is no extension.
 String contentTypeForFilename(String filename) {
   final lastSlash = filename.lastIndexOf('/');
-  final segment =
-      lastSlash >= 0 ? filename.substring(lastSlash + 1) : filename;
+  final segment = lastSlash >= 0 ? filename.substring(lastSlash + 1) : filename;
   final dot = segment.lastIndexOf('.');
   if (dot < 0 || dot == segment.length - 1) {
     return defaultContentType;

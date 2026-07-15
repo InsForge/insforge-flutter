@@ -10,7 +10,7 @@ class EmbeddingsRequest {
     required this.input,
     this.encodingFormat,
     this.dimensions,
-  })  : assert(
+  }) : assert(
           input is String || input is List<String>,
           'input must be a String or List<String>',
         );

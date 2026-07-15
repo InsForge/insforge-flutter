@@ -9,7 +9,10 @@ void main() {
     });
 
     test('keeps an explicit http scheme', () {
-      expect(normalizeBaseUrl('http://localhost:7130'), 'http://localhost:7130');
+      expect(
+        normalizeBaseUrl('http://localhost:7130'),
+        'http://localhost:7130',
+      );
     });
 
     test('uses http when useHttps is false and no scheme given', () {

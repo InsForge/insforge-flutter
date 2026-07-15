@@ -6,8 +6,7 @@ import 'support/sse_adapter.dart';
 
 void main() {
   group('ChatCompletions.createStream', () {
-    test('parses SSE chunks into content deltas and stops at [DONE]',
-        () async {
+    test('parses SSE chunks into content deltas and stops at [DONE]', () async {
       final dio = Dio();
       dio.httpClientAdapter = SseAdapter(<String>[
         '{"id":"c","model":"m","choices":[{"index":0,'

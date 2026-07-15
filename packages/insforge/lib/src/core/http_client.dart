@@ -154,7 +154,9 @@ class InsforgeHttpClient {
       final data = response.data;
       final parsed = data is Map<String, dynamic>
           ? ErrorResponse.fromJson(data)
-          : ErrorResponse(message: data?.toString() ?? 'HTTP ${response.statusCode}');
+          : ErrorResponse(
+              message: data?.toString() ?? 'HTTP ${response.statusCode}',
+            );
       return InsforgeHttpException(
         statusCode: response.statusCode ?? -1,
         message: parsed.message,

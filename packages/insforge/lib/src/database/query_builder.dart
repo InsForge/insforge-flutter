@@ -1,7 +1,6 @@
 // packages/insforge_database/lib/src/query_builder.dart
 import 'package:insforge/insforge.dart';
 
-
 /// Fluent, mutable builder for PostgREST-style record queries.
 ///
 /// Methods accumulate query parameters and return `this`, so calls chain on a
@@ -193,7 +192,9 @@ class QueryBuilder {
   }
 
   /// Executes the query and maps each row with [fromJson].
-  Future<List<T>> executeAs<T>(T Function(Map<String, dynamic>) fromJson) async {
+  Future<List<T>> executeAs<T>(
+    T Function(Map<String, dynamic>) fromJson,
+  ) async {
     final rows = await execute();
     return rows.map(fromJson).toList();
   }

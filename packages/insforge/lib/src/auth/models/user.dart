@@ -40,8 +40,7 @@ class User {
       providers: rawProviders is List
           ? rawProviders.map((dynamic e) => e.toString()).toList()
           : const <String>[],
-      profile:
-          rawProfile is Map ? Map<String, dynamic>.from(rawProfile) : null,
+      profile: rawProfile is Map ? Map<String, dynamic>.from(rawProfile) : null,
       metadata:
           rawMetadata is Map ? Map<String, dynamic>.from(rawMetadata) : null,
       createdAt: parseInsforgeDate(json['createdAt'] as String?),

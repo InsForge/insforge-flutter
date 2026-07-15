@@ -142,8 +142,16 @@ void main() {
         final rows = await db
             .from(_table)
             .insert(<Map<String, dynamic>>[
-              <String, dynamic>{'name': 'batch-a-$ts', 'value': 'batch', 'score': 20},
-              <String, dynamic>{'name': 'batch-b-$ts', 'value': 'batch', 'score': 30},
+              <String, dynamic>{
+                'name': 'batch-a-$ts',
+                'value': 'batch',
+                'score': 20,
+              },
+              <String, dynamic>{
+                'name': 'batch-b-$ts',
+                'value': 'batch',
+                'score': 30,
+              },
             ])
             .select()
             .execute();
@@ -159,7 +167,9 @@ void main() {
         final tag = 'update-${DateTime.now().microsecondsSinceEpoch}';
         final inserted = await db
             .from(_table)
-            .insert(<String, dynamic>{'name': tag, 'value': 'before', 'score': 0})
+            .insert(
+              <String, dynamic>{'name': tag, 'value': 'before', 'score': 0},
+            )
             .select()
             .execute();
         final Object id = inserted.first['id'] as Object;
@@ -207,8 +217,7 @@ void main() {
 
         await db.from(_table).eq('id', id).delete().execute();
 
-        final check =
-            await db.from(_table).select('id').eq('id', id).execute();
+        final check = await db.from(_table).select('id').eq('id', id).execute();
         expect(check, isEmpty);
       });
 
@@ -222,14 +231,27 @@ void main() {
           final seeded = await db
               .from(_table)
               .insert(<Map<String, dynamic>>[
-                <String, dynamic>{'name': '$tag-alpha', 'value': 'hello world', 'score': 10},
-                <String, dynamic>{'name': '$tag-beta', 'value': 'hello earth', 'score': 20},
-                <String, dynamic>{'name': '$tag-gamma', 'value': 'goodbye world', 'score': 30},
+                <String, dynamic>{
+                  'name': '$tag-alpha',
+                  'value': 'hello world',
+                  'score': 10,
+                },
+                <String, dynamic>{
+                  'name': '$tag-beta',
+                  'value': 'hello earth',
+                  'score': 20,
+                },
+                <String, dynamic>{
+                  'name': '$tag-gamma',
+                  'value': 'goodbye world',
+                  'score': 30,
+                },
               ])
               .select()
               .execute();
-          seedIds =
-              seeded.map((Map<String, dynamic> r) => r['id'] as Object).toList();
+          seedIds = seeded
+              .map((Map<String, dynamic> r) => r['id'] as Object)
+              .toList();
           insertedIds.addAll(seedIds);
         });
 
@@ -310,8 +332,7 @@ void main() {
           final rows = await db
               .from(_table)
               .select('name')
-              .inFilter('name', <Object>['$tag-alpha', '$tag-gamma'])
-              .execute();
+              .inFilter('name', <Object>['$tag-alpha', '$tag-gamma']).execute();
           expect(rows.length, greaterThanOrEqualTo(2));
         });
 
