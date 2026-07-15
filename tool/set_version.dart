@@ -20,10 +20,8 @@ const String _versionDart = 'packages/insforge/lib/src/core/version.dart';
 
 final RegExp _semver = RegExp(r'^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$');
 final RegExp _versionLine = RegExp(r'^version:.*$', multiLine: true);
-final RegExp _depLine =
-    RegExp(r'^(\s+insforge:\s*\^).*$', multiLine: true);
-final RegExp _dartConst =
-    RegExp(r"const String insforgeSdkVersion = '.*';");
+final RegExp _depLine = RegExp(r'^(\s+insforge:\s*\^).*$', multiLine: true);
+final RegExp _dartConst = RegExp(r"const String insforgeSdkVersion = '.*';");
 
 void main(List<String> args) {
   _ensureRepoRoot();
@@ -35,7 +33,8 @@ void main(List<String> args) {
   }
   final version = args.first;
   if (!_semver.hasMatch(version)) {
-    stderr.writeln('Invalid version "$version" (expected X.Y.Z[-pre][+build]).');
+    stderr
+        .writeln('Invalid version "$version" (expected X.Y.Z[-pre][+build]).');
     exit(64);
   }
   _set(version);
@@ -57,8 +56,9 @@ void _set(String version) {
   stdout.writeln('Set insforge + insforge_flutter to $version '
       '(and insforge_flutter -> insforge: ^$version).');
   stdout.writeln('Regenerated $_versionDart.');
-  stdout.writeln('Next: update each package CHANGELOG.md, commit, tag '
-      'v$version, then publish insforge before insforge_flutter.');
+  stdout.writeln('Next: update each package CHANGELOG.md and commit.');
+  stdout.writeln('Then push insforge-v$version, wait for it on pub.dev, and '
+      'push insforge_flutter-v$version from the same commit.');
 }
 
 bool _check() {
@@ -72,12 +72,13 @@ bool _check() {
       'insforge_flutter version ($flutter) != insforge version ($core)',
     if (dart != core)
       'version.dart insforgeSdkVersion ($dart) != insforge version ($core)',
-    if (dep != core)
-      'insforge_flutter dep "insforge: ^$dep" != ^$core',
+    if (dep != core) 'insforge_flutter dep "insforge: ^$dep" != ^$core',
   ];
 
   if (problems.isEmpty) {
-    stdout.writeln('Version $core is in sync across both packages + version.dart.');
+    stdout.writeln(
+      'Version $core is in sync across both packages + version.dart.',
+    );
     return true;
   }
   stderr.writeln('Version drift detected:');

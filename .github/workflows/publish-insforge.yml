@@ -1,0 +1,40 @@
+name: Publish insforge to pub.dev
+
+on:
+  push:
+    tags:
+      - "insforge-v[0-9]+.[0-9]+.[0-9]+"
+      - "insforge-v[0-9]+.[0-9]+.[0-9]+-*"
+
+jobs:
+  validate:
+    name: Validate release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: dart-lang/setup-dart@v1.7.2
+
+      - name: Validate tag matches package version
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          version="$(sed -n 's/^version:[[:space:]]*//p' packages/insforge/pubspec.yaml)"
+          if [ "$RELEASE_TAG" != "insforge-v$version" ]; then
+            echo "Tag $RELEASE_TAG does not match insforge version $version."
+            exit 1
+          fi
+
+      - name: Check lockstep versions
+        run: dart run tool/set_version.dart --check
+
+  publish:
+    name: Publish insforge
+    needs: validate
+    permissions:
+      id-token: write
+    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1.7.2
+    with:
+      working-directory: packages/insforge
