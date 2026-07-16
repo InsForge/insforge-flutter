@@ -137,9 +137,13 @@ apart.
 5. Wait until that exact `insforge` version is visible on pub.dev.
 6. Tag and publish the Flutter package from the same release commit:
    ```bash
-   git tag -a insforge_flutter-v<new-version> -m "insforge_flutter v<new-version>"
+   git tag -a insforge_flutter-v<new-version> \
+     "insforge-v<new-version>^{}" -m "insforge_flutter v<new-version>"
    git push origin insforge_flutter-v<new-version>
    ```
+
+   The `^{}` suffix peels the annotated core tag to its commit, so this remains
+   pinned to the core release even if the checked-out branch advances.
 
 Both tags trigger package-specific GitHub Actions workflows that publish through
 pub.dev automated publishing (OIDC). No pub.dev token is stored in GitHub. Do

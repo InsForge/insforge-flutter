@@ -18,7 +18,12 @@ const String _insforgePubspec = 'packages/insforge/pubspec.yaml';
 const String _flutterPubspec = 'packages/insforge_flutter/pubspec.yaml';
 const String _versionDart = 'packages/insforge/lib/src/core/version.dart';
 
-final RegExp _semver = RegExp(r'^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$');
+final RegExp _semver = RegExp(
+  r'^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)'
+  r'(?:-(?:0|[1-9]\d*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*)'
+  r'(?:\.(?:0|[1-9]\d*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*))*)?'
+  r'(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$',
+);
 final RegExp _versionLine = RegExp(r'^version:.*$', multiLine: true);
 final RegExp _depLine = RegExp(r'^(\s+insforge:\s*\^).*$', multiLine: true);
 final RegExp _dartConst = RegExp(r"const String insforgeSdkVersion = '.*';");

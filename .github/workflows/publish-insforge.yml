@@ -5,6 +5,7 @@ on:
     tags:
       - "insforge-v[0-9]+.[0-9]+.[0-9]+"
       - "insforge-v[0-9]+.[0-9]+.[0-9]+-*"
+      - 'insforge-v[0-9]+.[0-9]+.[0-9]+\+*'
 
 jobs:
   validate:
@@ -30,7 +31,7 @@ jobs:
             exit 1
           fi
 
-          if [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          if [[ "$version" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(\+[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?$ ]]; then
             echo "stable=true" >> "$GITHUB_OUTPUT"
           else
             echo "stable=false" >> "$GITHUB_OUTPUT"
@@ -41,9 +42,15 @@ jobs:
         # resolve the root workspace, which also contains a Flutter package.
         run: dart tool/set_version.dart --check
 
+  quality:
+    name: Run release quality checks
+    permissions:
+      contents: read
+    uses: ./.github/workflows/ci.yaml
+
   publish:
     name: Publish insforge
-    needs: validate
+    needs: [validate, quality]
     permissions:
       id-token: write
     uses: dart-lang/setup-dart/.github/workflows/publish.yml@65eb853c7ba17dde3be364c3d2858773e7144260 # v1.7.2
