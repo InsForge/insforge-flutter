@@ -144,7 +144,9 @@ apart.
 Both tags trigger package-specific GitHub Actions workflows that publish through
 pub.dev automated publishing (OIDC). No pub.dev token is stored in GitHub. Do
 not push the `insforge_flutter` tag before the matching `insforge` version is
-available, because the Flutter package depends on it.
+available, because the Flutter package depends on it. Each stable package tag
+creates a GitHub Release after pub.dev publication succeeds; prerelease tags
+publish to pub.dev without creating a GitHub Release.
 
 > Note on 0.x: under SemVer, `^0.1.0` means `>=0.1.0 <0.2.0`. Bumping the minor
 > (e.g. `0.1.x → 0.2.0`) is a breaking change, and the tool updates

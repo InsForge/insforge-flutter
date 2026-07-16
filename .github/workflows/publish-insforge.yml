@@ -12,12 +12,15 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    outputs:
+      stable: ${{ steps.version.outputs.stable }}
     steps:
       - uses: actions/checkout@v7
 
       - uses: dart-lang/setup-dart@v1.7.2
 
       - name: Validate tag matches package version
+        id: version
         env:
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
@@ -25,6 +28,12 @@ jobs:
           if [ "$RELEASE_TAG" != "insforge-v$version" ]; then
             echo "Tag $RELEASE_TAG does not match insforge version $version."
             exit 1
+          fi
+
+          if [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "stable=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "stable=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Check lockstep versions
@@ -38,3 +47,24 @@ jobs:
     uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1.7.2
     with:
       working-directory: packages/insforge
+
+  release:
+    name: Create stable GitHub Release
+    if: needs.validate.outputs.stable == 'true'
+    needs: [validate, publish]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          if gh release view "$RELEASE_TAG" --repo "$REPOSITORY" >/dev/null 2>&1; then
+            echo "GitHub Release $RELEASE_TAG already exists"
+          else
+            gh release create "$RELEASE_TAG" --repo "$REPOSITORY" --generate-notes --verify-tag
+          fi
