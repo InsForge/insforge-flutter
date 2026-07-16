@@ -5,6 +5,7 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_call:
 
 jobs:
   # The workspace contains a Flutter package (packages/insforge_flutter), so the
@@ -13,12 +14,14 @@ jobs:
   analyze-and-test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: subosito/flutter-action@v2
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
         with:
           channel: stable
       - name: Install dependencies
         run: flutter pub get
+      - name: Check formatting
+        run: dart format --output=none --set-exit-if-changed .
       - name: Analyze
         run: dart analyze .
       - name: Check version is in sync (both packages + version.dart)
@@ -32,3 +35,9 @@ jobs:
       - name: Test insforge_flutter
         working-directory: packages/insforge_flutter
         run: flutter test
+      - name: Dry-run publish insforge
+        working-directory: packages/insforge
+        run: dart pub publish --dry-run
+      - name: Dry-run publish insforge_flutter
+        working-directory: packages/insforge_flutter
+        run: dart pub publish --dry-run

@@ -15,7 +15,8 @@ void main() {
     });
 
     test('tolerates a null profile by yielding an empty map', () {
-      final p = Profile.fromJson(<String, dynamic>{'id': 'u-2', 'profile': null});
+      final p =
+          Profile.fromJson(<String, dynamic>{'id': 'u-2', 'profile': null});
       expect(p.id, 'u-2');
       expect(p.profile, isEmpty);
     });

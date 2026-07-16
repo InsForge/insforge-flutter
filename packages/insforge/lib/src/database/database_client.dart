@@ -1,7 +1,6 @@
 // packages/insforge_database/lib/src/database_client.dart
 import 'package:insforge/insforge.dart';
 
-
 /// Entry point for PostgREST-style database access.
 ///
 /// Wraps a shared [InsforgeHttpClient]; all requests inherit its auth-header

@@ -66,7 +66,8 @@ void main() {
     });
   });
 
-  test('a single filter on a column stays a bare string (not a list)', () async {
+  test('a single filter on a column stays a bare string (not a list)',
+      () async {
     final adapter = RecordingAdapter(responseBody: <dynamic>[]);
     final db = DatabaseClient(_client(adapter));
 
@@ -95,7 +96,8 @@ void main() {
     expect(adapter.single.queryParameters['id'], 'in.(1,2,3)');
   });
 
-  test('contains/containedBy/or/not/filter/textSearch escape hatches', () async {
+  test('contains/containedBy/or/not/filter/textSearch escape hatches',
+      () async {
     final adapter = RecordingAdapter(responseBody: <dynamic>[]);
     final db = DatabaseClient(_client(adapter));
 

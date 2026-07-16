@@ -1,3 +1,5 @@
 # Files excluded from the published package archive (not from git).
-# Tests aren't needed by consumers and keep the package small.
+# Local tooling, build artifacts, and tests aren't needed by consumers.
+.dart_tool/
+build/
 test/

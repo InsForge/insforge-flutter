@@ -45,8 +45,7 @@ class Images {
       if (rawImages is List) {
         for (final img in rawImages.whereType<Map<String, dynamic>>()) {
           final imageUrl = img['image_url'];
-          final url =
-              imageUrl is Map<String, dynamic> ? imageUrl['url'] : null;
+          final url = imageUrl is Map<String, dynamic> ? imageUrl['url'] : null;
           if (url is String && url.isNotEmpty) {
             images.add(GeneratedImage.fromImageUrl(url));
           }

@@ -5,7 +5,6 @@ import 'package:dio/dio.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:insforge/insforge.dart';
 
-
 /// Operations on the objects of a single bucket. Obtain one via
 /// [StorageClient.from].
 class StorageFileApi {

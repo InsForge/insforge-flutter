@@ -34,7 +34,8 @@ void main() {
     expect(identical(client.http, client.http), isTrue);
   });
 
-  test('ai getter throws a clear error when no OpenRouter key was supplied', () {
+  test('ai getter throws a clear error when no OpenRouter key was supplied',
+      () {
     final client = build();
     expect(
       () => client.ai,

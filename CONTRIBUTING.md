@@ -129,12 +129,28 @@ apart.
 1. `dart run tool/set_version.dart <new-version>`.
 2. Add a `## <new-version>` section to each package's `CHANGELOG.md`.
 3. Commit, open a PR, merge to `main`.
-4. Tag the release: `git tag v<new-version> && git push --tags`.
-5. Publish **in order** (the Flutter package depends on the Dart one):
+4. Tag and publish the core package:
    ```bash
-   cd packages/insforge && dart pub publish          # wait until it's live
-   cd ../insforge_flutter && dart pub publish
+   git tag -a insforge-v<new-version> -m "insforge v<new-version>"
+   git push origin insforge-v<new-version>
    ```
+5. Wait until that exact `insforge` version is visible on pub.dev.
+6. Tag and publish the Flutter package from the same release commit:
+   ```bash
+   git tag -a insforge_flutter-v<new-version> \
+     "insforge-v<new-version>^{}" -m "insforge_flutter v<new-version>"
+   git push origin insforge_flutter-v<new-version>
+   ```
+
+   The `^{}` suffix peels the annotated core tag to its commit, so this remains
+   pinned to the core release even if the checked-out branch advances.
+
+Both tags trigger package-specific GitHub Actions workflows that publish through
+pub.dev automated publishing (OIDC). No pub.dev token is stored in GitHub. Do
+not push the `insforge_flutter` tag before the matching `insforge` version is
+available, because the Flutter package depends on it. Each stable package tag
+creates a GitHub Release after pub.dev publication succeeds; prerelease tags
+publish to pub.dev without creating a GitHub Release.
 
 > Note on 0.x: under SemVer, `^0.1.0` means `>=0.1.0 <0.2.0`. Bumping the minor
 > (e.g. `0.1.x → 0.2.0`) is a breaking change, and the tool updates

@@ -4,7 +4,6 @@ import 'dart:convert';
 
 import 'package:insforge/insforge.dart';
 
-
 /// Storage key for the persisted refresh token.
 const String kRefreshTokenKey = 'insforge_refresh_token';
 

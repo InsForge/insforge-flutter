@@ -37,9 +37,10 @@ void main() {
     );
     final db = DatabaseClient(_client(adapter));
 
-    final result = await db
-        .rpc('get_user_stats', args: <String, dynamic>{'user_id': 123})
-        .execute();
+    final result = await db.rpc(
+      'get_user_stats',
+      args: <String, dynamic>{'user_id': 123},
+    ).execute();
 
     final req = adapter.single;
     expect(req.method, 'POST');

@@ -85,7 +85,10 @@ void main() {
       (server) => server.reply(200, <String, dynamic>{
         'message': 'Password reset successfully',
       }),
-      data: <String, dynamic>{'newPassword': 'newpw123', 'otp': 'reset-token-1'},
+      data: <String, dynamic>{
+        'newPassword': 'newpw123',
+        'otp': 'reset-token-1',
+      },
     );
 
     await auth.resetPassword(otp: 'reset-token-1', newPassword: 'newpw123');

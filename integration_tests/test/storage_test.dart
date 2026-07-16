@@ -99,7 +99,8 @@ void main() {
       test('uploadAutoKey returns a server-generated key', () async {
         if (!bucketAvailable) return;
 
-        final content = 'Auto upload – ${DateTime.now().microsecondsSinceEpoch}';
+        final content =
+            'Auto upload – ${DateTime.now().microsecondsSinceEpoch}';
         final bytes = Uint8List.fromList(utf8.encode(content));
 
         try {
@@ -121,9 +122,9 @@ void main() {
 
       test('download of a non-existent object throws', () async {
         await expectLater(
-          storage
-              .from(_bucket)
-              .download('nonexistent-${DateTime.now().microsecondsSinceEpoch}.txt'),
+          storage.from(_bucket).download(
+                'nonexistent-${DateTime.now().microsecondsSinceEpoch}.txt',
+              ),
           throwsA(isA<InsforgeHttpException>()),
         );
       });

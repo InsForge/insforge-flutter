@@ -49,7 +49,11 @@ void main() {
         isA<InsforgeHttpException>()
             .having((e) => e.statusCode, 'statusCode', 404)
             .having((e) => e.error, 'error', 'TABLE_NOT_FOUND')
-            .having((e) => e.nextActions, 'nextActions', 'Create the table first.'),
+            .having(
+              (e) => e.nextActions,
+              'nextActions',
+              'Create the table first.',
+            ),
       ),
     );
   });

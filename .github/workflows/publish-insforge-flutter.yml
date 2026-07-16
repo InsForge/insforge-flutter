@@ -1,0 +1,92 @@
+name: Publish insforge_flutter to pub.dev
+
+on:
+  push:
+    tags:
+      - "insforge_flutter-v[0-9]+.[0-9]+.[0-9]+"
+      - "insforge_flutter-v[0-9]+.[0-9]+.[0-9]+-*"
+      - 'insforge_flutter-v[0-9]+.[0-9]+.[0-9]+\+*'
+
+jobs:
+  validate:
+    name: Validate release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      stable: ${{ steps.version.outputs.stable }}
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+
+      - uses: dart-lang/setup-dart@65eb853c7ba17dde3be364c3d2858773e7144260 # v1.7.2
+
+      - name: Validate tag matches package version
+        id: version
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          version="$(sed -n 's/^version:[[:space:]]*//p' packages/insforge_flutter/pubspec.yaml)"
+          if [ "$RELEASE_TAG" != "insforge_flutter-v$version" ]; then
+            echo "Tag $RELEASE_TAG does not match insforge_flutter version $version."
+            exit 1
+          fi
+
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          if [[ "$version" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(\+[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?$ ]]; then
+            echo "stable=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "stable=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Check lockstep versions
+        # Run the dependency-free script directly so Dart does not try to
+        # resolve the root workspace, which also contains a Flutter package.
+        run: dart tool/set_version.dart --check
+
+      - name: Verify matching insforge version is published
+        env:
+          RELEASE_VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          if ! curl --fail --silent --show-error --retry 5 --retry-delay 10 \
+            "https://pub.dev/api/packages/insforge/versions/$RELEASE_VERSION" \
+            >/dev/null; then
+            echo "insforge $RELEASE_VERSION is not available on pub.dev yet." >&2
+            echo "Publish insforge-v$RELEASE_VERSION first and wait for it to become available." >&2
+            exit 1
+          fi
+
+  quality:
+    name: Run release quality checks
+    permissions:
+      contents: read
+    uses: ./.github/workflows/ci.yaml
+
+  publish:
+    name: Publish insforge_flutter
+    needs: [validate, quality]
+    permissions:
+      id-token: write
+    uses: dart-lang/setup-dart/.github/workflows/publish.yml@65eb853c7ba17dde3be364c3d2858773e7144260 # v1.7.2
+    with:
+      working-directory: packages/insforge_flutter
+
+  release:
+    name: Create stable GitHub Release
+    if: needs.validate.outputs.stable == 'true'
+    needs: [validate, publish]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          if gh release view "$RELEASE_TAG" --repo "$REPOSITORY" >/dev/null 2>&1; then
+            echo "GitHub Release $RELEASE_TAG already exists"
+          else
+            gh release create "$RELEASE_TAG" --repo "$REPOSITORY" --generate-notes --verify-tag
+          fi

@@ -12,8 +12,7 @@ class RecordingAdapter implements HttpClientAdapter {
   final int statusCode;
 
   final List<Map<String, dynamic>> bodies = <Map<String, dynamic>>[];
-  final List<Map<String, List<String>>> headers =
-      <Map<String, List<String>>>[];
+  final List<Map<String, List<String>>> headers = <Map<String, List<String>>>[];
   final List<String> paths = <String>[];
 
   @override
