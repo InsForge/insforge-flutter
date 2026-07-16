@@ -15,9 +15,9 @@ jobs:
     outputs:
       stable: ${{ steps.version.outputs.stable }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
-      - uses: dart-lang/setup-dart@v1.7.2
+      - uses: dart-lang/setup-dart@65eb853c7ba17dde3be364c3d2858773e7144260 # v1.7.2
 
       - name: Validate tag matches package version
         id: version
@@ -30,6 +30,7 @@ jobs:
             exit 1
           fi
 
+          echo "version=$version" >> "$GITHUB_OUTPUT"
           if [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "stable=true" >> "$GITHUB_OUTPUT"
           else
@@ -37,14 +38,28 @@ jobs:
           fi
 
       - name: Check lockstep versions
-        run: dart run tool/set_version.dart --check
+        # Run the dependency-free script directly so Dart does not try to
+        # resolve the root workspace, which also contains a Flutter package.
+        run: dart tool/set_version.dart --check
+
+      - name: Verify matching insforge version is published
+        env:
+          RELEASE_VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          if ! curl --fail --silent --show-error --retry 5 --retry-delay 10 \
+            "https://pub.dev/api/packages/insforge/versions/$RELEASE_VERSION" \
+            >/dev/null; then
+            echo "insforge $RELEASE_VERSION is not available on pub.dev yet." >&2
+            echo "Publish insforge-v$RELEASE_VERSION first and wait for it to become available." >&2
+            exit 1
+          fi
 
   publish:
     name: Publish insforge_flutter
     needs: validate
     permissions:
       id-token: write
-    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1.7.2
+    uses: dart-lang/setup-dart/.github/workflows/publish.yml@65eb853c7ba17dde3be364c3d2858773e7144260 # v1.7.2
     with:
       working-directory: packages/insforge_flutter
 

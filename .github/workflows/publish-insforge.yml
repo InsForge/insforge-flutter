@@ -15,9 +15,9 @@ jobs:
     outputs:
       stable: ${{ steps.version.outputs.stable }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
-      - uses: dart-lang/setup-dart@v1.7.2
+      - uses: dart-lang/setup-dart@65eb853c7ba17dde3be364c3d2858773e7144260 # v1.7.2
 
       - name: Validate tag matches package version
         id: version
@@ -37,14 +37,16 @@ jobs:
           fi
 
       - name: Check lockstep versions
-        run: dart run tool/set_version.dart --check
+        # Run the dependency-free script directly so Dart does not try to
+        # resolve the root workspace, which also contains a Flutter package.
+        run: dart tool/set_version.dart --check
 
   publish:
     name: Publish insforge
     needs: validate
     permissions:
       id-token: write
-    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1.7.2
+    uses: dart-lang/setup-dart/.github/workflows/publish.yml@65eb853c7ba17dde3be364c3d2858773e7144260 # v1.7.2
     with:
       working-directory: packages/insforge
 
