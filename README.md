@@ -125,7 +125,7 @@ final total = await client.database.from('posts').count();
 ```dart
 final stored = await client.storage
     .from('avatars')
-    .upload('users/me.png', bytes, upsert: true);
+    .upload('users/me.png', bytes); // replaces any existing object at this key
 final url = client.storage.from('avatars').getPublicUrl(stored.key);
 final files = await client.storage.from('avatars').list(prefix: 'users/');
 final data = await client.storage.from('avatars').download('users/me.png');

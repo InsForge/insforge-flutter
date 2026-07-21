@@ -1,4 +1,5 @@
 // packages/insforge_storage/lib/src/storage_file_api.dart
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
@@ -21,6 +22,35 @@ class StorageFileApi {
   static String _lastSegment(String path) {
     final i = path.lastIndexOf('/');
     return i >= 0 ? path.substring(i + 1) : path;
+  }
+
+  static const String _keyAlphabet = '0123456789abcdefghijklmnopqrstuvwxyz';
+  static final Random _keyRandom = Random();
+
+  /// Generates a unique object key from [filename]:
+  /// `<sanitized-base>-<timestamp>-<random><ext>`.
+  ///
+  /// Auto-key generation is a client-side convenience — the storage API has
+  /// no server-side key minting — so [uploadAutoKey] produces the key here
+  /// and then uploads through the standard [upload] path.
+  static String _generateObjectKey(String filename) {
+    final dotIndex = filename.lastIndexOf('.');
+    final hasExt = dotIndex > 0;
+    final ext = hasExt ? filename.substring(dotIndex) : '';
+    final base = hasExt ? filename.substring(0, dotIndex) : filename;
+    var sanitizedBase = base.replaceAll(RegExp('[^a-zA-Z0-9_-]'), '-');
+    if (sanitizedBase.length > 32) {
+      sanitizedBase = sanitizedBase.substring(0, 32);
+    }
+    if (sanitizedBase.isEmpty) {
+      sanitizedBase = 'file';
+    }
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    final random = List<String>.generate(
+      6,
+      (_) => _keyAlphabet[_keyRandom.nextInt(_keyAlphabet.length)],
+    ).join();
+    return '$sanitizedBase-$timestamp-$random$ext';
   }
 
   /// Builds a single-part `FormData` whose `file` field carries [bytes] with
@@ -47,12 +77,17 @@ class StorageFileApi {
 
   /// Uploads [bytes] to [path] (a specific key) via a multipart PUT.
   ///
-  /// [contentType] is inferred from the extension when omitted. Set [upsert]
-  /// to overwrite an existing object (`x-upsert: true`).
+  /// Standard PUT semantics: uploading to a key that already exists replaces
+  /// the object in place. [contentType] is inferred from the extension when
+  /// omitted.
   Future<StoredFile> upload(
     String path,
     Uint8List bytes, {
     String? contentType,
+    @Deprecated(
+      'Uploads follow standard PUT semantics and always replace an existing '
+      'object; this flag is a no-op and will be removed in a future release.',
+    )
     bool upsert = false,
     Map<String, dynamic>? metadata,
   }) async {
@@ -62,30 +97,36 @@ class StorageFileApi {
       'PUT',
       '$_bucketPath/objects/$path',
       data: form,
-      headers: <String, String>{if (upsert) 'x-upsert': 'true'},
     );
     return StoredFile.fromJson(Map<String, dynamic>.from(response.data as Map));
   }
 
-  /// Uploads [bytes] with a server-generated key via a multipart POST.
+  /// Uploads [bytes] under an automatically generated, collision-free key.
+  ///
+  /// The key is derived client-side from [filename] (sanitized base +
+  /// timestamp + random suffix) — the storage API has no server-side key
+  /// minting — and uploaded through the standard [upload] path, so repeated
+  /// uploads of the same file never overwrite each other.
   ///
   /// [filename] is used for content-type inference and key generation.
   Future<StoredFile> uploadAutoKey(
     String filename,
     Uint8List bytes, {
     String? contentType,
+    @Deprecated(
+      'Auto-generated keys are unique, so there is never an existing object '
+      'to replace; this flag is a no-op and will be removed in a future '
+      'release.',
+    )
     bool upsert = false,
     Map<String, dynamic>? metadata,
-  }) async {
-    final resolved = contentType ?? contentTypeForFilename(filename);
-    final form = _fileFormData(bytes, _lastSegment(filename), resolved);
-    final response = await _http.request<dynamic>(
-      'POST',
-      '$_bucketPath/objects',
-      data: form,
-      headers: <String, String>{if (upsert) 'x-upsert': 'true'},
+  }) {
+    return upload(
+      _generateObjectKey(filename),
+      bytes,
+      contentType: contentType ?? contentTypeForFilename(filename),
+      metadata: metadata,
     );
-    return StoredFile.fromJson(Map<String, dynamic>.from(response.data as Map));
   }
 
   // ----- download / list / delete / public url -----
@@ -191,6 +232,9 @@ class StorageFileApi {
   }
 
   /// Confirms a presigned upload of [objectKey], returning the [StoredFile].
+  ///
+  /// Confirm create-or-replaces the metadata row, matching the standard PUT
+  /// semantics of [upload].
   Future<StoredFile> confirmUpload(
     String objectKey, {
     required int size,

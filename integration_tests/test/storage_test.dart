@@ -36,7 +36,6 @@ void main() {
                 probeKey,
                 Uint8List.fromList(utf8.encode('probe')),
                 contentType: 'text/plain',
-                upsert: true,
               );
           // Best-effort cleanup.
           try {
@@ -79,45 +78,51 @@ void main() {
               path,
               bytes,
               contentType: 'text/plain',
-              upsert: true,
             );
         expect(stored.key, isNotEmpty);
+
+        // Re-uploading to the same key replaces the object in place
+        // (standard PUT semantics — no server-side auto-rename).
+        final replacement = 'Replaced – ${DateTime.now().toIso8601String()}';
+        final replaced = await storage.from(_bucket).upload(
+              path,
+              Uint8List.fromList(utf8.encode(replacement)),
+              contentType: 'text/plain',
+            );
+        expect(replaced.key, stored.key);
 
         // List (with prefix).
         final listed =
             await storage.from(_bucket).list(prefix: 'sdk-test/', limit: 50);
         expect(listed, isA<List<StoredFile>>());
 
-        // Download and verify bytes.
+        // Download and verify bytes — the replacement content wins.
         final downloaded = await storage.from(_bucket).download(path);
-        expect(utf8.decode(downloaded), content);
+        expect(utf8.decode(downloaded), replacement);
 
         // Delete.
         await storage.from(_bucket).delete(path);
       });
 
-      test('uploadAutoKey returns a server-generated key', () async {
+      test('uploadAutoKey uploads under a unique client-generated key',
+          () async {
         if (!bucketAvailable) return;
 
         final content =
             'Auto upload – ${DateTime.now().microsecondsSinceEpoch}';
         final bytes = Uint8List.fromList(utf8.encode(content));
 
+        final stored = await storage.from(_bucket).uploadAutoKey(
+              'auto.txt',
+              bytes,
+              contentType: 'text/plain',
+            );
+        // Client-generated key: sanitized base + timestamp + random suffix.
+        expect(stored.key, matches(RegExp(r'^auto-\d+-[a-z0-9]{6}\.txt$')));
+        // Best-effort cleanup.
         try {
-          final stored = await storage.from(_bucket).uploadAutoKey(
-                'auto.txt',
-                bytes,
-                contentType: 'text/plain',
-              );
-          expect(stored.key, isNotEmpty);
-          // Best-effort cleanup.
-          try {
-            await storage.from(_bucket).delete(stored.key);
-          } catch (_) {}
-        } on InsforgeHttpException catch (e) {
-          // Some backends may not support auto-key generation.
-          expect(e.statusCode, greaterThanOrEqualTo(400));
-        }
+          await storage.from(_bucket).delete(stored.key);
+        } catch (_) {}
       });
 
       test('download of a non-existent object throws', () async {

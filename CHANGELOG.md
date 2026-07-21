@@ -4,6 +4,33 @@ All notable changes to the InsForge Dart/Flutter SDK are documented here. This
 project follows [Semantic Versioning](https://semver.org) and
 [Keep a Changelog](https://keepachangelog.com).
 
+## 0.2.0
+
+Syncs with InsForge JS SDK v1.5.0 (storage: standard PUT create-or-replace
+semantics). Requires an InsForge backend that includes the standard-PUT
+storage change (InsForge/InsForge#1760); do not run against a pre-change
+backend.
+
+### Changed
+
+- **Storage `upload(path, bytes)`** — uploading to a key that already exists
+  now replaces the object in place (standard PUT semantics). Previously the
+  server silently auto-renamed the key (`photo.png` → `photo (1).png`). The
+  method signature is unchanged; the friendly auto-rename UX now lives in the
+  InsForge dashboard rather than the API.
+- **Storage `uploadAutoKey(filename, bytes)`** — now generates a unique,
+  collision-free key client-side (sanitized base + timestamp + random suffix)
+  and uploads through the standard `upload` path, so repeated uploads of the
+  same file never overwrite each other. The backend no longer mints keys
+  server-side.
+
+### Deprecated
+
+- The `upsert` flag on `upload`, `uploadAutoKey`, and `FileOptions` — uploads
+  always replace an existing object now, so the flag is a no-op (the
+  `x-upsert` header is no longer sent) and will be removed in a future
+  release.
+
 ## 0.1.0
 
 Initial release.
