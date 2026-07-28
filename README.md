@@ -88,6 +88,10 @@ if (!res.hasSession) {
 }
 await client.auth.signIn(email: email, password: password);
 
+// Passwordless email OTP sign-in
+await client.auth.signInWithOtp(email: email);              // send a 6-digit code
+await client.auth.verifyOtp(email: email, otp: '123456');   // establishes a session
+
 // React to auth changes
 client.auth.onAuthStateChange.listen((AuthState s) => print(s.event));
 
@@ -129,6 +133,12 @@ final stored = await client.storage
 final url = client.storage.from('avatars').getPublicUrl(stored.key);
 final files = await client.storage.from('avatars').list(prefix: 'users/');
 final data = await client.storage.from('avatars').download('users/me.png');
+await client.storage.from('avatars').delete('users/me.png');
+// Batch delete (max 1000 keys, one result per key)
+final results = await client.storage
+    .from('avatars')
+    .deleteAll(<String>['a.png', 'b.png']);
+// results: [DeleteObjectResult(key, status: deleted|notFound|failed, message?)]
 ```
 
 ### Functions — edge functions

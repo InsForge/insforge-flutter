@@ -4,6 +4,30 @@ All notable changes to the InsForge Dart/Flutter SDK are documented here. This
 project follows [Semantic Versioning](https://semver.org) and
 [Keep a Changelog](https://keepachangelog.com).
 
+## 0.2.0
+
+Sync with [InsForge-sdk-js v1.5.1](https://github.com/InsForge/InsForge-sdk-js/releases/tag/v1.5.1).
+
+### Added
+
+- **Auth — passwordless email OTP sign-in** (`insforge`):
+  - `AuthClient.signInWithOtp(email: ...)` — requests a 6-digit sign-in code
+    via `POST /api/auth/email/send-otp`. The server response is intentionally
+    generic whether or not an account exists (enumeration-safe).
+  - `AuthClient.verifyOtp(email: ..., otp: ..., name: ...)` — verifies the
+    code via `POST /api/auth/sessions` (`method: 'otp'`) and establishes,
+    persists, and emits a session like every other token-issuing flow. `name`
+    sets the display name only when a new user is created.
+- **Storage** — `DeleteObjectResult` model (`key`,
+  `status: deleted | notFound | failed`, optional `message`).
+
+### Changed
+
+- **Storage** — `StorageFileApi.deleteAll(paths)` now issues a single batch
+  request (`DELETE /api/storage/buckets/{bucket}/objects` with `{keys}`,
+  maximum 1000 keys) instead of one DELETE per path, and returns
+  `List<DeleteObjectResult>` (one result per key) instead of `void`.
+
 ## 0.1.0
 
 Initial release.

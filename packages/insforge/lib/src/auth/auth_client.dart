@@ -209,6 +209,48 @@ class AuthClient {
   }
 
   // ---------------------------------------------------------------------------
+  // Email OTP sign-in (passwordless)
+  // ---------------------------------------------------------------------------
+
+  /// Sends a one-time 6-digit sign-in code to [email].
+  ///
+  /// The server response is intentionally generic whether or not an account
+  /// exists, to avoid account enumeration. Complete the flow with [verifyOtp].
+  Future<void> signInWithOtp({required String email}) async {
+    await _http.request<dynamic>(
+      'POST',
+      '/api/auth/email/send-otp',
+      data: <String, dynamic>{'email': email},
+    );
+  }
+
+  /// Verifies an email sign-in [otp] (from [signInWithOtp]) and establishes a
+  /// session. Persists and emits on success.
+  ///
+  /// If the email is new, a verified passwordless user is created; [name] sets
+  /// the display name only on that first-time creation.
+  Future<AuthResponse> verifyOtp({
+    required String email,
+    required String otp,
+    String? name,
+  }) async {
+    final res = await _http.request<Map<String, dynamic>>(
+      'POST',
+      '/api/auth/sessions',
+      data: <String, dynamic>{
+        'method': 'otp',
+        'email': email,
+        'otp': otp,
+        if (name != null) 'name': name,
+      },
+      queryParameters: _clientTypeQuery,
+    );
+    final response = AuthResponse.fromJson(res.data!);
+    await _applySession(response.toSession(), AuthChangeEvent.signedIn);
+    return response;
+  }
+
+  // ---------------------------------------------------------------------------
   // Password reset
   // ---------------------------------------------------------------------------
 

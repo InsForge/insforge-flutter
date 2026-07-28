@@ -5,7 +5,7 @@
 // both packages in lockstep) with:  dart run tool/set_version.dart <version>
 
 /// The current InsForge Dart SDK version (mirrors `pubspec.yaml`).
-const String insforgeSdkVersion = '0.1.0';
+const String insforgeSdkVersion = '0.2.0';
 
 /// `User-Agent` sent on every request from this SDK: `InsForge-Dart/<version>`.
 const String insforgeUserAgent = 'InsForge-Dart/$insforgeSdkVersion';

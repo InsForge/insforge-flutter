@@ -194,6 +194,44 @@ class DownloadStrategy {
       };
 }
 
+/// Per-key outcome of a batch delete ([StorageFileApi.deleteAll]).
+///
+/// [status] is `deleted`, `notFound`, or `failed`; [message] carries the
+/// server's explanation when the delete failed.
+class DeleteObjectResult {
+  const DeleteObjectResult({
+    required this.key,
+    required this.status,
+    this.message,
+  });
+
+  /// The object key this result refers to.
+  final String key;
+
+  /// `deleted`, `notFound`, or `failed`.
+  final String status;
+
+  /// Server-provided detail, typically present when [status] is `failed`.
+  final String? message;
+
+  /// Whether the object was actually deleted.
+  bool get deleted => status == 'deleted';
+
+  factory DeleteObjectResult.fromJson(Map<String, dynamic> json) {
+    return DeleteObjectResult(
+      key: (json['key'] ?? '').toString(),
+      status: (json['status'] ?? '').toString(),
+      message: json['message']?.toString(),
+    );
+  }
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        'key': key,
+        'status': status,
+        if (message != null) 'message': message,
+      };
+}
+
 /// Options for an upload: an explicit [contentType] (otherwise inferred from
 /// the filename extension), whether to [upsert] over an existing object, and
 /// optional [metadata].

@@ -123,6 +123,30 @@ void main() {
     });
   });
 
+  group('DeleteObjectResult.fromJson', () {
+    test('parses a deleted result', () {
+      final r = DeleteObjectResult.fromJson(<String, dynamic>{
+        'key': 'a.png',
+        'status': 'deleted',
+      });
+      expect(r.key, 'a.png');
+      expect(r.status, 'deleted');
+      expect(r.deleted, isTrue);
+      expect(r.message, isNull);
+      expect(r.toJson(), <String, dynamic>{'key': 'a.png', 'status': 'deleted'});
+    });
+
+    test('parses a failed result with a message', () {
+      final r = DeleteObjectResult.fromJson(<String, dynamic>{
+        'key': 'locked.png',
+        'status': 'failed',
+        'message': 'Delete denied',
+      });
+      expect(r.deleted, isFalse);
+      expect(r.message, 'Delete denied');
+    });
+  });
+
   group('FileOptions', () {
     test('defaults upsert to false', () {
       const o = FileOptions();
