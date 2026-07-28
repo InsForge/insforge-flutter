@@ -98,23 +98,56 @@ void main() {
     expect(req.path, '/api/storage/buckets/avatars/objects/users/me.png');
   });
 
-  test('deleteAll(paths) DELETEs each path', () async {
+  test('deleteAll(paths) issues one batch DELETE and parses per-key results',
+      () async {
     final adapter = RecordingAdapter(
-      responseBody: <String, dynamic>{'message': 'ok'},
+      responseBody: <String, dynamic>{
+        'results': <dynamic>[
+          <String, dynamic>{'key': 'a.png', 'status': 'deleted'},
+          <String, dynamic>{'key': 'b.png', 'status': 'notFound'},
+          <String, dynamic>{
+            'key': 'c.png',
+            'status': 'failed',
+            'message': 'Delete denied',
+          },
+        ],
+      },
     );
     final api = StorageClient(_client(adapter)).from('avatars');
 
-    await api.deleteAll(<String>['a.png', 'b.png', 'c.png']);
+    final results = await api.deleteAll(<String>['a.png', 'b.png', 'c.png']);
 
-    expect(adapter.requests, hasLength(3));
-    expect(
-      adapter.requests.map((CapturedRequest r) => r.path).toList(),
-      <String>[
-        '/api/storage/buckets/avatars/objects/a.png',
-        '/api/storage/buckets/avatars/objects/b.png',
-        '/api/storage/buckets/avatars/objects/c.png',
-      ],
+    final req = adapter.single;
+    expect(req.method, 'DELETE');
+    expect(req.path, '/api/storage/buckets/avatars/objects');
+    expect(req.body, <String, dynamic>{
+      'keys': <dynamic>['a.png', 'b.png', 'c.png'],
+    });
+
+    expect(results, hasLength(3));
+    expect(results[0].key, 'a.png');
+    expect(results[0].status, 'deleted');
+    expect(results[0].deleted, isTrue);
+    expect(results[0].message, isNull);
+    expect(results[1].status, 'notFound');
+    expect(results[1].deleted, isFalse);
+    expect(results[2].status, 'failed');
+    expect(results[2].message, 'Delete denied');
+  });
+
+  test('deleteAll does not split large lists into multiple requests',
+      () async {
+    final adapter = RecordingAdapter(
+      responseBody: <String, dynamic>{'results': <dynamic>[]},
     );
+    final api = StorageClient(_client(adapter)).from('avatars');
+
+    final paths =
+        List<String>.generate(1001, (int index) => 'file-$index.txt');
+    await api.deleteAll(paths);
+
+    final req = adapter.single;
+    expect((req.body as Map)['keys'], hasLength(1001));
   });
 
   test('getPublicUrl builds the {baseUrl}/.../objects/{path} string', () {

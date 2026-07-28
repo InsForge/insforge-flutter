@@ -138,11 +138,29 @@ class StorageFileApi {
     await _http.request<dynamic>('DELETE', '$_bucketPath/objects/$path');
   }
 
-  /// Deletes every object in [paths] (the API has no batch-delete endpoint).
-  Future<void> deleteAll(List<String> paths) async {
-    for (final path in paths) {
-      await delete(path);
+  /// Deletes every object in [paths] in a single batch request.
+  ///
+  /// The endpoint accepts at most 1000 keys per call and returns one
+  /// [DeleteObjectResult] per key (`deleted`, `notFound`, or `failed`); the
+  /// list is not split client-side.
+  Future<List<DeleteObjectResult>> deleteAll(List<String> paths) async {
+    final response = await _http.request<dynamic>(
+      'DELETE',
+      '$_bucketPath/objects',
+      data: <String, dynamic>{'keys': paths},
+    );
+    final data = response.data;
+    final raw = data is Map<String, dynamic> ? data['results'] : data;
+    if (raw is List) {
+      return raw
+          .whereType<Map<dynamic, dynamic>>()
+          .map(
+            (Map<dynamic, dynamic> e) =>
+                DeleteObjectResult.fromJson(Map<String, dynamic>.from(e)),
+          )
+          .toList();
     }
+    return <DeleteObjectResult>[];
   }
 
   /// Builds the public download URL for [path] from the configured base URL.
