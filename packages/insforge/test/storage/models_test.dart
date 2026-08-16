@@ -127,6 +127,7 @@ void main() {
     test('defaults upsert to false', () {
       const o = FileOptions();
       expect(o.contentType, isNull);
+      // ignore: deprecated_member_use_from_same_package
       expect(o.upsert, isFalse);
       expect(o.metadata, isNull);
     });

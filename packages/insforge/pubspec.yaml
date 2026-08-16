@@ -1,7 +1,7 @@
 # packages/insforge/pubspec.yaml
 name: insforge
 description: Pure-Dart SDK for InsForge — auth, database, storage, functions, and AI.
-version: 0.1.0
+version: 0.2.0
 repository: https://github.com/InsForge/insforge-flutter
 homepage: https://insforge.dev
 resolution: workspace

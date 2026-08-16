@@ -195,16 +195,27 @@ class DownloadStrategy {
 }
 
 /// Options for an upload: an explicit [contentType] (otherwise inferred from
-/// the filename extension), whether to [upsert] over an existing object, and
-/// optional [metadata].
+/// the filename extension) and optional [metadata].
 class FileOptions {
   const FileOptions({
     this.contentType,
+    @Deprecated(
+      'Uploads follow standard PUT semantics and always replace an existing '
+      'object; this flag is a no-op and will be removed in a future release.',
+    )
     this.upsert = false,
     this.metadata,
   });
 
   final String? contentType;
+
+  /// No-op: uploads follow standard PUT semantics and always replace an
+  /// existing object.
+  @Deprecated(
+    'Uploads follow standard PUT semantics and always replace an existing '
+    'object; this flag is a no-op and will be removed in a future release.',
+  )
   final bool upsert;
+
   final Map<String, dynamic>? metadata;
 }
